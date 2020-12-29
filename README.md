@@ -1,4 +1,5 @@
-this repo is a sandbox for us to build a dash visualization app based on Simplecast response data
+# BlueView
+This repo is a sandbox for us to build a dash visualization app based on Simplecast response data
 
 Eventually want this to replace our Power BI dashboard as a visualization tool
 
@@ -10,7 +11,7 @@ To use the podcasts-downloads dashboard, run `python app.py` from the command li
 
 To get a histogram of podcast downloads by distribution  platform (Apple, Spotify, etc.) run `python platform_hist.py` from the command line and navigate to listed local server (http://127.0.0.1:8050/)
 
-##**TODO:**
+## **TODO:**
 
 - [] Add dropdown, app layout functions to utils
 - [] Figure out simplecast individual state API call for geo bubble chart
