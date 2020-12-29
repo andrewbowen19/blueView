@@ -28,6 +28,6 @@ def getSimplecastResponse(query_params):#, data_label):
 
 
 if __name__=='__main__':
-	test_id = '649a9132-4298-4d65-b650-8360b693520e'
-	g = getSimplecastResponse(f'/analytics/downloads?podcast={test_id}', 'by_interval')
-	print(g)
+	# test_id = '649a9132-4298-4d65-b650-8360b693520e'
+	g = getSimplecastResponse('/podcasts?limit=1000')
+	print(json.loads(g))

@@ -21,28 +21,11 @@ from podIDs import podIDs
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-# Would be cool to add dropdown menu to select podcast (maps to id for API request) for interactivity!
 
-
-# assume you have a "long-form" data frame
+# assume you have a "long-form" data frame -- reformatted from API JSON responses
 # see https://plotly.com/python/px-arguments/ for more options
 # #############################################################################
-# sc = getSimpleCast()
-# test_id = '649a9132-4298-4d65-b650-8360b693520e'
-# # df = sc.getResponse(f'/analytics/downloads?podcast={test_id}', 'by_interval')
-# dat = getSimplecastResponse(f'/analytics/downloads?podcast={test_id}')#, 'by_interval')
-# df = pd.json_normalize(json.loads(dat), 'by_interval')
-# print(df)
-# ############################################################################
-# df = pd.DataFrame({
-#     "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
-#     "Amount": [4, 1, 2, 2, 4, 5],
-#     "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
-# })
-# #############################################################################
-# dat = getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}')#, 'by_interval')
-# df = pd.json_normalize(json.loads(dat), 'by_interval')
-# fig = px.line(df, x="interval", y="downloads_total")#, color="City", barmode="group")
+
 
 app.layout = html.Div(children=[
     html.H1(children=f'Downloads for podcasts by date'),
@@ -96,6 +79,7 @@ def update_output_div(input_value):
 def update_graph(pod_id):
 	'''
 	Function to update downloads figure based on inputted pod ID
+	Pod ID parameter set by user selection on our dropdown menux
 	'''
 	dat = getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}')#, 'by_interval')
 	df = pd.json_normalize(json.loads(dat), 'by_interval')
@@ -106,3 +90,11 @@ def update_graph(pod_id):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+
+
+
+
+
+
+
