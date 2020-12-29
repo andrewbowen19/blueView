@@ -18,7 +18,7 @@ def getSimplecastResponse(query_params):#, data_label):
 	payload = ''
 	url = "api.simplecast.com"
 	headers = {'authorization': auth}
-	conn = http.client.HTTPSConnection(url, timeout=60)
+	conn = http.client.HTTPSConnection(url)
 	conn.request("GET", query_params, payload, headers)
 	res = conn.getresponse()
 	data = res.read()

@@ -12,7 +12,7 @@ import plotly.express as px
 import pandas as pd
 
 # ########LOCAL IMPORT####
-from getSimpleCast import getSimpleCast
+# from getSimpleCast import getSimpleCast
 from getSimplecastResponse import getSimplecastResponse
 import json
 from podIDs import podIDs
@@ -59,9 +59,7 @@ app.layout = html.Div(children=[
     html.Div(id='dd-output-container'),
 	
 
-    html.Div(children='''
-        Dash: A web application framework for Python.
-    '''),
+    # html.Div(children="Your"),
 
     dcc.Graph(
         id='downloads-graph'#,
@@ -82,6 +80,15 @@ app.layout = html.Div(children=[
 # 	df = pd.json_normalize(json.loads(dat), 'by_interval')
 # 	return df
 
+# Updating selected pod from dropdown menu
+@app.callback(
+    Output(component_id='dd-output-container', component_property='children'),
+    Input(component_id='pod-title-dropdown', component_property='value')
+)
+def update_output_div(input_value):
+    return f'Your selected podcast ID: {input_value}'
+
+# Calback to update graph from dropdown menu
 @app.callback(
 	Output(component_id='downloads-graph', component_property='figure'),
 	Input(component_id='pod-title-dropdown', component_property='value')
