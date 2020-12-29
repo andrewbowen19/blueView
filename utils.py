@@ -7,8 +7,7 @@ from pandas import json_normalize
 import json
 
 
-
-def getSimplecastResponse(query_params):#, data_label):
+def getSimplecastResponse(query_params):
 	'''
 	Method to establish connection to Simplecast API
 	query_params - string for HTTP request params
@@ -29,7 +28,6 @@ def podIDs():
 	'''Get up-to-date pod IDs and titles from Simpelcast API'''
 	pod_name_info = []
 	dat = getSimplecastResponse('/podcasts?limit=1000')
-	# print(dat)
 	# print(json.loads(dat)['collection'])
 
 	# Writing API title-id responses to list
@@ -43,6 +41,8 @@ def podIDs():
 	return pod_name_info
 
 if __name__=='__main__':
-	# test_id = '649a9132-4298-4d65-b650-8360b693520e'
-	g = getSimplecastResponse('/podcasts?limit=1000')
-	print(json.loads(g))
+	test_id = '649a9132-4298-4d65-b650-8360b693520e'
+	usa_id = str(6252001)
+	# g = getSimplecastResponse('/podcasts?limit=1000')
+	g = getSimplecastResponse(f'/analytics/location?podcast={test_id}')#state={usa_id}')
+	print(g)

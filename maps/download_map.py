@@ -1,6 +1,8 @@
 '''
 Script for a download map based on user-selected podcast
 Plotly bubble map infor can be foudn here: https://plotly.com/python/bubble-maps/
+
+run python download_map.py from command line and navigate to local server to view download map
 '''
 
 import dash
@@ -58,10 +60,10 @@ def update_output_div(input_value):
 )
 def update_graph(pod_id):
 	dat = getSimplecastResponse(f'/analytics/location?podcast={pod_id}')#, 'by_interval')
-	print(json.loads(dat))
+	# print(json.loads(dat))
 	df = pd.DataFrame(json.loads(dat)['countries'])#pd.json_normalize(json.loads(dat)['countries'])#, 'countries')
-	print(df['name'])
-	print(df.columns)
+	# print(df['name'])
+	# print(df.columns)
 	fig = px.scatter_geo(df, locations="name", locationmode= 'country names',
                      hover_name="name", size="downloads_total",
                      projection="natural earth")
