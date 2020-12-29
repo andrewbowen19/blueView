@@ -19,9 +19,10 @@ class getSimpleCast(object):
 		self.payload = ''
 		self.url = "api.simplecast.com"
 		self.headers = {'authorization': self.auth}
+		self.conn = http.client.HTTPSConnection(self.url)
 
 
-	def setupHTTP(self, query_params):
+	def getResponse(self, query_params, data_label):
 		'''
 		Method to establish connection to Simplecast API
 		query_params - string for HTTP request params
@@ -32,14 +33,14 @@ class getSimpleCast(object):
 		res = conn.getresponse()
 		data = res.read()
 
-		return data.decode('utf-8')
+		# return data.decode('utf-8') #str
 
 		# Using json_normalize to convert API response JSON object to pandas df
 		# https://stackoverflow.com/questions/44802160/convert-json-api-response-to-pandas-dataframe#comment113544642_44802232
-		# df = json_normalize(json.loads(data.decode('utf-8')), 'by_interval')
+		df = json_normalize(json.loads(data.decode('utf-8')), data_label)
 
 		# Returning json-style string as API response
-		# return df
+		return df
 
 	def downloadsByPod(self, pod_id):
 		'''
@@ -47,7 +48,9 @@ class getSimpleCast(object):
 		'''
 		params = f'/analytics/downloads?podcast={pod_id}'
 		response = self.setupHTTP(params)
-		df = json_normalize(json.loads(response), 'by_interval')
+		response_json = json.loads(response)
+		print('Response:', response, response_json)
+		df = json_normalize(response_json, 'by_interval')
 
 		return df
 
@@ -64,7 +67,8 @@ if __name__=='__main__':
 	test_id = '649a9132-4298-4d65-b650-8360b693520e'
 	gsc = getSimpleCast()
 
-	sh = gsc.setupHTTP(f'/analytics/downloads?podcast={test_id}')
+	sh = gsc.getResponse(f'/analytics/downloads?podcast={test_id}', 'by_interval')
+	# gsc.downloadsByPod(f'/analytics/downloads?podcast={test_id}')
 	print(sh)
 
 
