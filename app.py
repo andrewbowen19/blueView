@@ -41,10 +41,19 @@ app.layout = html.Div(children=[
     # Outputs selected podcast ID to user: not sure if we need this later on
     html.Div(id='dd-output-container'),
 
-    # Figure widget
+    # Downloads per time period graph
     dcc.Graph(
-        id='downloads-graph'#,
-        # figure=fig
+        id='downloads-graph'
+    ),
+    html.Div(id='separator'),
+    # Distribution Platform Graph
+    dcc.Graph(
+        id='dist-platform-graph'
+    ),
+
+    dcc.Graph(
+        id='country-downloads-graph'
+        
     )
 ])
 
@@ -70,13 +79,46 @@ def update_graph(pod_id):
 	Pod ID parameter set by user selection on our dropdown menux
 	'''
 	# Getting data from Simplecast for selected podcast
-	dat = getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}')#, 'by_interval')
+	dat = getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}')
 	df = pd.json_normalize(json.loads(dat), 'by_interval')
 	print(df)
 
 	# Creating plotly
 	fig = px.line(df, x="interval", y="downloads_total")
 	return fig
+
+# #############################
+# Distribution platform graph
+@app.callback(
+    Output(component_id='dist-platform-graph', component_property='figure'),
+    Input(component_id='pod-title-dropdown', component_property='value')
+)
+def update_platform_graph(pod_id):
+    dat = getSimplecastResponse(f'/analytics/technology/applications?podcast={pod_id}')
+    # print(json.loads(dat))
+    df = pd.DataFrame(json.loads(dat)['collection'])
+    print(df)
+    print(df.columns)
+    fig = px.histogram(df, 
+                  x='name', y='downloads_total',
+                  labels={'name': 'Platform Name', 'downloads_total': 'Downloads'},
+                  range_x=[0,10],nbins=10,
+                  title='Downloads per Distribution platform')
+    return fig
+
+# ############################
+# Country Download Map
+@app.callback(
+    Output(component_id='country-downloads-graph', component_property='figure'),
+    Input(component_id='pod-title-dropdown', component_property='value')
+)
+def update_graph(pod_id):
+    dat = getSimplecastResponse(f'/analytics/location?podcast={pod_id}')
+    df = pd.DataFrame(json.loads(dat)['countries'])
+    fig = px.scatter_geo(df, locations="name", locationmode= 'country names',
+                     hover_name="name", size="downloads_total",
+                     projection="natural earth")
+    return fig
 
 if __name__ == '__main__':
     app.run_server(debug=True)
