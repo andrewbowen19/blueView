@@ -7,15 +7,16 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
-
 import plotly.express as px
-import pandas as pd
 
-# ########LOCAL IMPORT####
-# from getSimpleCast import getSimpleCast
-from getSimplecastResponse import getSimplecastResponse
+import pandas as pd
 import json
-from podIDs import podIDs
+
+# ########LOCAL IMPORTS####
+# from getSimpleCast import getSimpleCast
+from utils import getSimplecastResponse, podIDs
+
+# from podIDs import podIDs
 # ########################
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -28,22 +29,19 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 
 app.layout = html.Div(children=[
-    html.H1(children=f'Downloads for podcasts by date'),
+    html.H1(children='Podcast Downloads by Date'),
 
-    # Adding dropdown menu for user interaction
-    
+    # Dropdown menu for user interaction
     dcc.Dropdown(
         id='pod-title-dropdown',
         options=podIDs(),
-        # value= '',
         searchable=True
         
     ),
+    # Outputs selected podcast ID to user: not sure if we need this later on
     html.Div(id='dd-output-container'),
-	
 
-    # html.Div(children="Your"),
-
+    # Figure widget
     dcc.Graph(
         id='downloads-graph'#,
         # figure=fig
@@ -81,10 +79,12 @@ def update_graph(pod_id):
 	Function to update downloads figure based on inputted pod ID
 	Pod ID parameter set by user selection on our dropdown menux
 	'''
+	# Getting data from Simplecast for selected podcast
 	dat = getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}')#, 'by_interval')
 	df = pd.json_normalize(json.loads(dat), 'by_interval')
 	print(df)
 
+	# Creating plotly
 	fig = px.line(df, x="interval", y="downloads_total")
 	return fig
 

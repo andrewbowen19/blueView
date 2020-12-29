@@ -25,7 +25,22 @@ def getSimplecastResponse(query_params):#, data_label):
 
 	return data.decode('utf-8') #str
 
+def podIDs():
+	'''Get up-to-date pod IDs and titles from Simpelcast API'''
+	pod_name_info = []
+	dat = getSimplecastResponse('/podcasts?limit=1000')
+	print(dat)
+	# print(json.loads(dat)['collection'])
 
+	# Writing API title-id responses to list
+	for item in json.loads(dat)['collection']:
+		# print(item)
+		pod_name_info.append({'label': item['title'], 'value': item['id']})
+
+	# print('Podcast Titles & IDs: ', pod_name_info)
+	# print('# of podcasts returned:', len(pod_name_info))
+
+	return pod_name_info
 
 if __name__=='__main__':
 	# test_id = '649a9132-4298-4d65-b650-8360b693520e'
