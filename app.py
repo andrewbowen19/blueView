@@ -51,16 +51,6 @@ app.layout = html.Div(children=[
 # Callbacks to update figure on screen based on user input
 # For more info check: https://dash.plotly.com/basic-callbacks
 
-# Using a callback to grab API data
-# @app.callback(
-# 	Output(component_id='dd-output-container', component_property='value'),
-# 	Input(component_id='pod-title-dropdown', component_property='value')
-# )
-# def get_pod_df(pod_id):
-# 	dat = getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}')#, 'by_interval')
-# 	df = pd.json_normalize(json.loads(dat), 'by_interval')
-# 	return df
-
 # Updating selected pod from dropdown menu
 @app.callback(
     Output(component_id='dd-output-container', component_property='children'),

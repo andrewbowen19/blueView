@@ -1,12 +1,11 @@
 '''
-Python script as a function to grab simplecast API data
+Utils for our downlaod map sub-app
 '''
+
 import http.client
 import pandas as pd
 from pandas import json_normalize
 import json
-
-
 
 def getSimplecastResponse(query_params):#, data_label):
 	'''
@@ -29,7 +28,7 @@ def podIDs():
 	'''Get up-to-date pod IDs and titles from Simpelcast API'''
 	pod_name_info = []
 	dat = getSimplecastResponse('/podcasts?limit=1000')
-	# print(dat)
+	#print(dat)
 	# print(json.loads(dat)['collection'])
 
 	# Writing API title-id responses to list
@@ -37,12 +36,5 @@ def podIDs():
 		# print(item)
 		pod_name_info.append({'label': item['title'], 'value': item['id']})
 
-	# print('Podcast Titles & IDs: ', pod_name_info)
-	# print('# of podcasts returned:', len(pod_name_info))
-
 	return pod_name_info
 
-if __name__=='__main__':
-	# test_id = '649a9132-4298-4d65-b650-8360b693520e'
-	g = getSimplecastResponse('/podcasts?limit=1000')
-	print(json.loads(g))
