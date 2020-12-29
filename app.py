@@ -6,6 +6,8 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+from dash.dependencies import Input, Output
+
 import plotly.express as px
 import pandas as pd
 
@@ -26,11 +28,11 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 # see https://plotly.com/python/px-arguments/ for more options
 # #############################################################################
 # sc = getSimpleCast()
-test_id = '649a9132-4298-4d65-b650-8360b693520e'
-# df = sc.getResponse(f'/analytics/downloads?podcast={test_id}', 'by_interval')
-dat = getSimplecastResponse(f'/analytics/downloads?podcast={test_id}')#, 'by_interval')
-df = pd.json_normalize(json.loads(dat), 'by_interval')
-print(df)
+# test_id = '649a9132-4298-4d65-b650-8360b693520e'
+# # df = sc.getResponse(f'/analytics/downloads?podcast={test_id}', 'by_interval')
+# dat = getSimplecastResponse(f'/analytics/downloads?podcast={test_id}')#, 'by_interval')
+# df = pd.json_normalize(json.loads(dat), 'by_interval')
+# print(df)
 # ############################################################################
 # df = pd.DataFrame({
 #     "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
@@ -38,20 +40,23 @@ print(df)
 #     "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
 # })
 # #############################################################################
-
-fig = px.line(df, x="interval", y="downloads_total")#, color="City", barmode="group")
+# dat = getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}')#, 'by_interval')
+# df = pd.json_normalize(json.loads(dat), 'by_interval')
+# fig = px.line(df, x="interval", y="downloads_total")#, color="City", barmode="group")
 
 app.layout = html.Div(children=[
-    html.H1(children=f'Downloads for podcast: {test_id}'),
+    html.H1(children=f'Downloads for podcasts by date'),
 
     # Adding dropdown menu for user interaction
     
     dcc.Dropdown(
-        id='demo-dropdown',
+        id='pod-title-dropdown',
         options=podIDs(),
-        # value='NYC'
+        # value= '',
+        searchable=True
+        
     ),
-    # html.Div(id='dd-output-container')
+    html.Div(id='dd-output-container'),
 	
 
     html.Div(children='''
@@ -59,10 +64,38 @@ app.layout = html.Div(children=[
     '''),
 
     dcc.Graph(
-        id='example-graph',
-        figure=fig
+        id='downloads-graph'#,
+        # figure=fig
     )
 ])
+
+# Callbacks to update figure on screen based on user input
+# For more info check: https://dash.plotly.com/basic-callbacks
+
+# Using a callback to grab API data
+# @app.callback(
+# 	Output(component_id='dd-output-container', component_property='value'),
+# 	Input(component_id='pod-title-dropdown', component_property='value')
+# )
+# def get_pod_df(pod_id):
+# 	dat = getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}')#, 'by_interval')
+# 	df = pd.json_normalize(json.loads(dat), 'by_interval')
+# 	return df
+
+@app.callback(
+	Output(component_id='downloads-graph', component_property='figure'),
+	Input(component_id='pod-title-dropdown', component_property='value')
+)
+def update_graph(pod_id):
+	'''
+	Function to update downloads figure based on inputted pod ID
+	'''
+	dat = getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}')#, 'by_interval')
+	df = pd.json_normalize(json.loads(dat), 'by_interval')
+	print(df)
+
+	fig = px.line(df, x="interval", y="downloads_total")
+	return fig
 
 if __name__ == '__main__':
     app.run_server(debug=True)

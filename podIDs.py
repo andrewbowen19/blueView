@@ -14,13 +14,14 @@ def podIDs():
 	'''Get up-to-date pod IDs and titles from Simpelcast API'''
 	pod_name_info = []
 	dat = getSimplecastResponse('/podcasts')
+	print(json.loads(dat))
 
 	for item in json.loads(dat)['collection']:
 		print(item.keys())
 		pod_name_info.append({'label': item['title'], 'value': item['id']})
 
-	# print(pod_name_info, len(pod_name_info))
-	print(json.loads(dat))
+	print(pod_name_info, len(pod_name_info))
+	
 
 	return pod_name_info
 
