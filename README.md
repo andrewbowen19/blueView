@@ -10,7 +10,11 @@ To use the podcasts-downloads dashboard, run `python app.py` from the command li
 
 To get a histogram of podcast downloads by distribution  platform (Apple, Spotify, etc.) run `python platform_hist.py` from the command line and navigate to listed local server (http://127.0.0.1:8050/)
 
+##**TODO:**
 
+- [] Add dropdown, app layout functions to utils
+- [] Figure out simplecast individual state API call for geo bubble chart
+- [] Research hosting platforms compatible with plotly (AWS might be feasible here)
 
 
 
