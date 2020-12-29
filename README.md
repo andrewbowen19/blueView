@@ -23,6 +23,8 @@ Run `python download_map.py` from the command line in order to view download dat
 - [] Figure out simplecast individual state API call for geo bubble chart
 - [] Research hosting platforms compatible with plotly (AWS might be feasible here)
 - [] Look into JSON parsing error ('countries', 'collection', etc.) when converting to pandas df
+- [] Dream up some new visualizations!
+
 
 
 
