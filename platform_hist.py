@@ -1,12 +1,11 @@
 '''
-Script for a download map based on user-selected podcast
-Plotly bubble map infor can be foudn here: https://plotly.com/python/bubble-maps/
+Code for a plotly histogram applet
 
-Plotly express scatter_geo docs: https://plotly.com/python-api-reference/generated/plotly.express.scatter_geo
+User can select podcasts from dropdown menu and view histogram of distribution platform data
 
-
-run python download_map.py from command line and navigate to local server to view download map
+Plotly express histogram docs: https://plotly.github.io/plotly.py-docs/generated/plotly.express.histogram.html
 '''
+
 
 import dash
 import dash_core_components as dcc
@@ -27,7 +26,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(children=[
-    html.H1(children='Podcast Downloads by Country'),
+    html.H1(children='Podcast Downloads by Platform'),
 
     # Dropdown menu for user interaction
     dcc.Dropdown(
@@ -46,9 +45,9 @@ app.layout = html.Div(children=[
     )
 ])
 
-# ### CALLBACKS GO HERE ###
-# #############################
-# Updating pod ID div based on user selection
+
+
+##### CALBACKS HERE #####
 @app.callback(
     Output(component_id='dd-output-container', component_property='children'),
     Input(component_id='pod-title-dropdown', component_property='value')
@@ -58,21 +57,31 @@ def update_output_div(input_value):
 
 # Updating graph from dropdown selection (pod ID)
 @app.callback(
-	Output(component_id='downloads-by-country-graph', component_property='figure'),
-	Input(component_id='pod-title-dropdown', component_property='value')
+    Output(component_id='downloads-by-country-graph', component_property='figure'),
+    Input(component_id='pod-title-dropdown', component_property='value')
 )
 def update_graph(pod_id):
-	dat = getSimplecastResponse(f'/analytics/location?podcast={pod_id}')#, 'by_interval')
-	# print(json.loads(dat))
-	df = pd.DataFrame(json.loads(dat)['countries'])#pd.json_normalize(json.loads(dat)['countries'])#, 'countries')
-	# print(df['name'])
-	# print(df.columns)
-	fig = px.scatter_geo(df, locations="name", locationmode= 'country names',
-                     hover_name="name", size="downloads_total",
-                     projection="natural earth")
-	return fig
+    dat = getSimplecastResponse(f'/analytics/technology/applications?podcast={pod_id}')#, 'by_interval')
+    # print(json.loads(dat))
+    df = pd.DataFrame(json.loads(dat)['collection'])#pd.json_normalize(json.loads(dat)['countries'])#, 'countries')
+    print(df)
+    print(df.columns)
+    fig = px.histogram(df, 
+                  x='name', y='downloads_total', labels={'name': 'Platform Name', 'downloads_total': 'Downloads'})#,
+                  # hover_name=['name', 'rank',
+                         # "downloads_total"])
+    return fig
 
-# #############################
 
+###########################
+
+
+
+
+
+###########################
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+
+

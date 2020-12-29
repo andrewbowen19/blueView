@@ -8,3 +8,9 @@ Info on plotly callbacks (used in our downloads_total app) can be found [here](h
 
 To use the podcasts-downloads dashboard, run `python app.py` from the command line and visit the HTTP port from the local server
 
+To get a histogram of podcast downloads by distribution  platform (Apple, Spotify, etc.) run `python platform_hist.py` from the command line and navigate to listed local server (http://127.0.0.1:8050/)
+
+
+
+
+
