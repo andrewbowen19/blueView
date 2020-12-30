@@ -13,6 +13,7 @@ def getSimplecastResponse(query_params):
 	query_params - string for HTTP request params
 	Check Simplecast docs for this
 	'''
+	# Figure out how to set this as an env variable
 	auth = 'Bearer eyJhcGlfa2V5IjoiMmY4MThhMDg3NzEyOTYxZTk3NzcwNTM3NDJjMmJiNmUifQ=='
 	payload = ''
 	url = "api.simplecast.com"
