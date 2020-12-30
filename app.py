@@ -14,7 +14,7 @@ import json
 
 # ########LOCAL IMPORTS####
 # from getSimpleCast import getSimpleCast
-from utils import getSimplecastResponse, podIDs
+from utils import getSimplecastResponse, podIDs, episodeIDs
 
 # from podIDs import podIDs
 # ########################
@@ -69,8 +69,22 @@ app.layout = html.Div(children=[
         id='country-downloads-graph')
 
         ],  className='six columns')
-    ])
+    ]),
 
+    html.Div([
+    ### Episode Level ###
+        html.H2('Episode-Level Data'),
+
+    # Episode Dropdown
+        dcc.Dropdown(
+        id='episode-dropdown',
+        # options=episodeIDs(),
+        searchable=True
+        
+    ),
+
+
+    ], id='episode-level')
 ])
 
 # Callbacks to update figure on screen based on user input
@@ -84,6 +98,7 @@ app.layout = html.Div(children=[
 )
 def update_output_div(input_value):
     return f'Your selected podcast ID: {input_value}'
+
 
 # Calback to update graph from dropdown menu
 @app.callback(
@@ -114,6 +129,7 @@ def update_graph(pod_id, interval):
     Input(component_id='pod-title-dropdown', component_property='value')
 )
 def update_platform_graph(pod_id):
+    '''update distribution platform graph based on podcast selection'''
     dat = getSimplecastResponse(f'/analytics/technology/applications?podcast={pod_id}')
     df = pd.DataFrame(json.loads(dat)['collection'])
     print(df)
@@ -132,12 +148,27 @@ def update_platform_graph(pod_id):
     Input(component_id='pod-title-dropdown', component_property='value')
 )
 def update_map(pod_id):
+    '''update map plot'''
     dat = getSimplecastResponse(f'/analytics/location?podcast={pod_id}')
     df = pd.DataFrame(json.loads(dat)['countries'])
     fig = px.scatter_geo(df, locations="name", locationmode= 'country names',
                      hover_name="name", size="downloads_total",
                      projection="natural earth", title='Downloads Per Country')
     return fig
+
+
+# ############################
+# Episode Level Dropdown
+@app.callback(
+    Output(component_id='episode-dropdown', component_property='options'),
+    Input(component_id='pod-title-dropdown', component_property='value')
+)
+def update_episode_dropdown(pod_id):
+    print('Podcast: Selected', pod_id)
+    episode_options = episodeIDs(pod_id)
+    print('Episode list (with tokens):', episode_options)
+    return episode_options
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
