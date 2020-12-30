@@ -22,6 +22,7 @@ def getSimplecastResponse(query_params):
 	conn.request("GET", query_params, payload, headers)
 	res = conn.getresponse()
 	data = res.read()
+	conn.close()
 
 	return data.decode('utf-8') #str
 
@@ -49,18 +50,21 @@ def episodeIDs(pod_id):
 	# print(json.loads(dat)['collection'])
 	episode_id_titles = []
 	for ep in json.loads(dat)['collection']:
+		# print(ep['id'])
 		pub_date = ep['published_at']
 		label = ep['title'] + '\t' + f'(Published: {pub_date})'
-		episode_id_titles.append({'label': f'{label}', 'value': ep['token']})
+		episode_id_titles.append({'label': f'{label}', 'value': ep['id']})
 
 	return episode_id_titles
 
 if __name__=='__main__':
-	test_id = '649a9132-4298-4d65-b650-8360b693520e'
+	test_id = '93cc0b3a-49ea-455f-affd-ac01fdafd761'
 	usa_id = str(6252001)
 	interval='month'
-	# g = getSimplecastResponse(f'/analytics/downloads?interval={interval}&podcast={test_id}')
-	# print(g)
-	print(podIDs())
-	e = episodeIDs(test_id)
-	print(e)
+	episode_id = 'e51b5998-749f-4ca7-9f39-b17cda147746'
+
+	g = getSimplecastResponse(f'/analytics/downloads?episode={episode_id}&interval={interval}')
+	print(g)
+	# # print(podIDs())
+	# e = episodeIDs(test_id)
+	# print(e)

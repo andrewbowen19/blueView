@@ -91,7 +91,21 @@ app.layout = html.Div(children=[
     ),
 
 
-    ], id='episode-level')
+    ], id='episode-level'),
+
+    # Episode Downlaod graph - same format as podcast donwload graph
+    html.Div([
+        dcc.Graph(id='episode-download-graph'),
+
+        dcc.Slider(
+            id='ep-interval-slider', 
+            min=0, max=2, 
+            marks={0: 'day', 1:'week', 2:'month'},
+            value=1)
+
+        ])
+
+    
 ])
 
 # #################################################################################################
@@ -140,7 +154,8 @@ def update_graph(pod_id, interval):
 def update_platform_graph(pod_id):
     '''update distribution platform graph based on podcast selection'''
     dat = getSimplecastResponse(f'/analytics/technology/applications?podcast={pod_id}')
-    df = pd.DataFrame(json.loads(dat)['collection'])
+    dat2json = json.loads(dat)
+    df = pd.DataFrame(dat2json['collection'])
     print(df)
     print(df.columns)
     fig = px.histogram(df, 
@@ -178,6 +193,35 @@ def update_episode_dropdown(pod_id):
     print('Episode list (with tokens):', episode_options)
     return episode_options
 
+# ############################
+# Episode Level Downloads graph
+# Calback to update graph from dropdown menu
+@app.callback(
+    Output(component_id='episode-download-graph', component_property='figure'),
+    Input(component_id='pod-title-dropdown', component_property='value'),
+    Input(component_id='episode-dropdown', component_property='value'),
+    Input(component_id='ep-interval-slider', component_property='value')
+)
+def update_episode_graph(pod_id, episode_id, interval):
+    '''
+    Function to update downloads figure based on inputted pod ID and ep ID
+    Pod ID parameter set by user selection on our dropdown menu
+    '''
+    # Getting data from Simplecast for selected podcast/episode
+    intervals = {0: 'day', 1:'week', 2:'month'}
+    print('Episode Interval selcted:', intervals[interval])
+    print('Selected Episode ID:', episode_id)
+    print('Getting Episode Data from Simplecast...')
+
+    dat = getSimplecastResponse(f'/analytics/downloads?episode={episode_id}&interval={intervals[interval]}')
+    print(dat)
+    df = pd.json_normalize(json.loads(dat), 'by_interval')
+    print('Got Data!')
+    print('Episode Data pulled:', df)
+
+    # Creating plotly figure within our Dash app
+    fig = px.line(df, x="interval", y="downloads_total")
+    return fig
 
 if __name__ == '__main__':
     app.run_server(debug=True)
