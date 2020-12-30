@@ -46,6 +46,7 @@ def podIDs():
 if __name__=='__main__':
 	test_id = '649a9132-4298-4d65-b650-8360b693520e'
 	usa_id = str(6252001)
-	g = getSimplecastResponse(f'/analytics/downloads?podcast={test_id}')
+	interval='month'
+	g = getSimplecastResponse(f'/analytics/downloads?interval={interval}&podcast={test_id}')#?interval=month')
 	# g = getSimplecastResponse(f'/analytics/location?podcast={test_id}')
 	print(g)

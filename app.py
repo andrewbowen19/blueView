@@ -43,21 +43,25 @@ app.layout = html.Div(children=[
 
     # Downloads per time period graph
     html.Div([
-    dcc.Graph(
+        # Graph of downloads vs time
+        dcc.Graph(
         id='downloads-graph'
-    ),
+         ),
+        # Slider to toggle interval
+        dcc.Slider(
+            id='interval-slider', 
+            min=0, max=2, 
+            marks={0: 'day', 1:'week', 2:'month'})
     ]),
     
-    # html.Div(id='separator'),
     # Div for bottom 2 graphs -- side by side
     html.Div([
     # Distribution Platform Graph
     html.Div([
             dcc.Graph(
-            id='dist-platform-graph'
-            )
+            id='dist-platform-graph')
             ],  className='six columns'),
-     # Country Downlaods graph 
+    # Country Downlaods graph 
     html.Div([
 
         dcc.Graph(
@@ -82,22 +86,25 @@ def update_output_div(input_value):
 
 # Calback to update graph from dropdown menu
 @app.callback(
-	Output(component_id='downloads-graph', component_property='figure'),
-	Input(component_id='pod-title-dropdown', component_property='value')
+    Output(component_id='downloads-graph', component_property='figure'),
+    Input(component_id='pod-title-dropdown', component_property='value'),
+    Input(component_id='interval-slider', component_property='value')
 )
-def update_graph(pod_id):
-	'''
-	Function to update downloads figure based on inputted pod ID
-	Pod ID parameter set by user selection on our dropdown menux
-	'''
-	# Getting data from Simplecast for selected podcast
-	dat = getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}?interval={interval}')
-	df = pd.json_normalize(json.loads(dat), 'by_interval')
-	print(df)
+def update_graph(pod_id, interval):
+    '''
+    Function to update downloads figure based on inputted pod ID
+    Pod ID parameter set by user selection on our dropdown menu
+    '''
+    # Getting data from Simplecast for selected podcast
+    print('Interval selcted:', interval)
+    intervals = {0: 'day', 1:'week', 2:'month'}
+    dat = getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}&interval={intervals[interval]}')
+    df = pd.json_normalize(json.loads(dat), 'by_interval')
+    print(df)
 
-	# Creating plotly
-	fig = px.line(df, x="interval", y="downloads_total")
-	return fig
+    # Creating plotly
+    fig = px.line(df, x="interval", y="downloads_total")
+    return fig
 
 # #############################
 # Distribution platform graph
@@ -107,7 +114,6 @@ def update_graph(pod_id):
 )
 def update_platform_graph(pod_id):
     dat = getSimplecastResponse(f'/analytics/technology/applications?podcast={pod_id}')
-    # print(json.loads(dat))
     df = pd.DataFrame(json.loads(dat)['collection'])
     print(df)
     print(df.columns)
@@ -124,7 +130,7 @@ def update_platform_graph(pod_id):
     Output(component_id='country-downloads-graph', component_property='figure'),
     Input(component_id='pod-title-dropdown', component_property='value')
 )
-def update_graph(pod_id):
+def update_map(pod_id):
     dat = getSimplecastResponse(f'/analytics/location?podcast={pod_id}')
     df = pd.DataFrame(json.loads(dat)['countries'])
     fig = px.scatter_geo(df, locations="name", locationmode= 'country names',
@@ -133,7 +139,7 @@ def update_graph(pod_id):
     return fig
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
 
 
 
