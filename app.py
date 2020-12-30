@@ -44,15 +44,22 @@ app.layout = html.Div(children=[
     # Downloads per time period graph
     html.Div([
         # Graph of downloads vs time
+        html.Div([
         dcc.Graph(
         id='downloads-graph'
          ),
+        # ]),
+
+        # html.Div([
         # Slider to toggle interval
         dcc.Slider(
             id='interval-slider', 
             min=0, max=2, 
             marks={0: 'day', 1:'week', 2:'month'},
-            value=1)
+            value=1)#,
+            #tooltip={'placement':'right'},
+            #vertical=True)
+        ])
     ]),
     
     # Div for bottom 2 graphs -- side by side
