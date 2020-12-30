@@ -87,6 +87,8 @@ app.layout = html.Div(children=[
     ], id='episode-level')
 ])
 
+# #################################################################################################
+
 # Callbacks to update figure on screen based on user input
 # For more info check: https://dash.plotly.com/basic-callbacks
 

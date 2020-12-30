@@ -49,7 +49,9 @@ def episodeIDs(pod_id):
 	# print(json.loads(dat)['collection'])
 	episode_id_titles = []
 	for ep in json.loads(dat)['collection']:
-		episode_id_titles.append({'label': ep['title'], 'value': ep['token']})
+		pub_date = ep['published_at']
+		label = ep['title'] + '\t' + f'(Published: {pub_date})'
+		episode_id_titles.append({'label': f'{label}', 'value': ep['token']})
 
 	return episode_id_titles
 
