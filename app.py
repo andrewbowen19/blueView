@@ -27,7 +27,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 # see https://plotly.com/python/px-arguments/ for more options
 # #############################################################################
 
-
+# Setting up app layout
 app.layout = html.Div(children=[
     html.H1(children='Podcast Downloads by Date'),
 
@@ -60,6 +60,7 @@ app.layout = html.Div(children=[
 # Callbacks to update figure on screen based on user input
 # For more info check: https://dash.plotly.com/basic-callbacks
 
+# #############################
 # Updating selected pod from dropdown menu
 @app.callback(
     Output(component_id='dd-output-container', component_property='children'),
@@ -117,7 +118,7 @@ def update_graph(pod_id):
     df = pd.DataFrame(json.loads(dat)['countries'])
     fig = px.scatter_geo(df, locations="name", locationmode= 'country names',
                      hover_name="name", size="downloads_total",
-                     projection="natural earth")
+                     projection="natural earth", title='Downloads Per Country')
     return fig
 
 if __name__ == '__main__':
