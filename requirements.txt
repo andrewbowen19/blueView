@@ -3,9 +3,6 @@ adal==1.2.5
 aiohttp==3.6.2
 alabaster==0.7.12
 altair==4.1.0
-anaconda-client==1.7.2
-anaconda-navigator==1.9.12
-anaconda-project==0.8.3
 anvil==0.0.2
 anvil-uplink==0.3.34
 anykeystore==0.2
