@@ -51,7 +51,8 @@ app.layout = html.Div(children=[
         dcc.Slider(
             id='interval-slider', 
             min=0, max=2, 
-            marks={0: 'day', 1:'week', 2:'month'})
+            marks={0: 'day', 1:'week', 2:'month'},
+            value=1)
     ]),
     
     # Div for bottom 2 graphs -- side by side
