@@ -42,19 +42,30 @@ app.layout = html.Div(children=[
     html.Div(id='dd-output-container'),
 
     # Downloads per time period graph
+    html.Div([
     dcc.Graph(
         id='downloads-graph'
     ),
-    html.Div(id='separator'),
+    ]),
+    
+    # html.Div(id='separator'),
+    # Div for bottom 2 graphs -- side by side
+    html.Div([
     # Distribution Platform Graph
-    dcc.Graph(
-        id='dist-platform-graph'
-    ),
+    html.Div([
+            dcc.Graph(
+            id='dist-platform-graph'
+            )
+            ],  className='six columns'),
+     # Country Downlaods graph 
+    html.Div([
 
-    dcc.Graph(
-        id='country-downloads-graph'
-        
-    )
+        dcc.Graph(
+        id='country-downloads-graph')
+
+        ],  className='six columns')
+    ])
+
 ])
 
 # Callbacks to update figure on screen based on user input
@@ -80,7 +91,7 @@ def update_graph(pod_id):
 	Pod ID parameter set by user selection on our dropdown menux
 	'''
 	# Getting data from Simplecast for selected podcast
-	dat = getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}')
+	dat = getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}?interval={interval}')
 	df = pd.json_normalize(json.loads(dat), 'by_interval')
 	print(df)
 
@@ -122,7 +133,7 @@ def update_graph(pod_id):
     return fig
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
 
 
 
