@@ -228,7 +228,11 @@ def update_episode_graph(pod_id, episode_id, interval):
     return fig
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(
+        port=8050,
+        host='0.0.0.0',
+        debug=False
+        )
 
 
 
