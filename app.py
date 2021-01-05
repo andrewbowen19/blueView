@@ -45,6 +45,10 @@ app.layout = html.Div(children=[
     # Outputs selected podcast ID to user: not sure if we need this later on
     html.Div(id='dd-output-container'),
 
+    # Div for # of episodes/downloads
+    html.Div(id='pod-stats-div'),
+
+
     # Downloads per time period graph
     html.Div([
         # Graph of downloads vs time
@@ -121,12 +125,24 @@ app.layout = html.Div(children=[
 # Updating selected pod from dropdown menu
 @app.callback(
     Output(component_id='dd-output-container', component_property='children'),
-    Input(component_id='pod-title-dropdown', component_property='value')
+    Input(component_id='pod-title-dropdown', component_property='label')
 )
 def update_output_div(input_value):
     return f'Your selected podcast ID: {input_value}'
 
+# #############################
+# Getting pod stats
+@app.callback(
+    Output(component_id='pod-stats-div', component_property='children'),
+    Input(component_id='pod-title-dropdown', component_property='label')
+)
+def update_pod_stats(pod_title):
+    # update pod name, # downloads, # episodes
+    return [f'Podcast Title: {pod_title} ', " <# Downloads> ", ' <# Episodes> ']
 
+
+
+# #############################
 # Calback to update graph from dropdown menu
 @app.callback(
     Output(component_id='downloads-graph', component_property='figure'),
