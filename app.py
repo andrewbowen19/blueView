@@ -26,11 +26,12 @@ from utils import getSimplecastResponse, podIDs, episodeIDs
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-server = app.server
+server = app.server # needed for heroku deploy
+
 # assume you have a "long-form" data frame -- reformatted from API JSON responses
 # see https://plotly.com/python/px-arguments/ for more options
 # #############################################################################
-
+pod_id_list = podIDs()
 # Setting up app layout
 app.layout = html.Div(children=[
     html.H1(children='Podcast Downloads by Date'),
@@ -38,15 +39,25 @@ app.layout = html.Div(children=[
     # Dropdown menu for user interaction
     dcc.Dropdown(
         id='pod-title-dropdown',
-        options=podIDs(),
+        options=pod_id_list,
         searchable=True
-        
     ),
+
     # Outputs selected podcast ID to user: not sure if we need this later on
     html.Div(id='dd-output-container'),
 
-    # Div for # of episodes/downloads
-    html.Div(id='pod-stats-div'),
+    # Div for # of episodes/downloads -- produced when podcast is selected
+    html.Div(id='pod-stats-div',children=[
+        # Title block
+        html.Div(id='pod-title-block', 
+            className='three columns'),
+        # # Episodes block
+        html.Div(id='pod-episode-number', 
+            className='three columns'),
+        #Downloads block
+        html.Div(id='pod-downloads-number', 
+            className='three columns')
+        ]),
 
 
     # Downloads per time period graph
@@ -125,7 +136,7 @@ app.layout = html.Div(children=[
 # Updating selected pod from dropdown menu
 @app.callback(
     Output(component_id='dd-output-container', component_property='children'),
-    Input(component_id='pod-title-dropdown', component_property='label')
+    Input(component_id='pod-title-dropdown', component_property='value')
 )
 def update_output_div(input_value):
     return f'Your selected podcast ID: {input_value}'
@@ -133,12 +144,12 @@ def update_output_div(input_value):
 # #############################
 # Getting pod stats
 @app.callback(
-    Output(component_id='pod-stats-div', component_property='children'),
-    Input(component_id='pod-title-dropdown', component_property='label')
+    Output(component_id='pod-title-block', component_property='children'),
+    Input(component_id='pod-title-dropdown', component_property='value')
 )
 def update_pod_stats(pod_title):
     # update pod name, # downloads, # episodes
-    return [f'Podcast Title: {pod_title} ', " <# Downloads> ", ' <# Episodes> ']
+    return f'Podcast Title: {pod_title} '#, " <# Downloads> ", ' <# Episodes> ']
 
 
 

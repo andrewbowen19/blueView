@@ -57,14 +57,42 @@ def episodeIDs(pod_id):
 
 	return episode_id_titles
 
+# Need a func to get network level data from Simplecast -- called on entry
+def networkLevel():
+	'''
+	Function to get network level data from Simplecast
+	Will be displayed on login to web app
+	'''
+	# TODO:
+
+	# WRITE THIS SO IT DOESNT TAKE FOREVER TO RUN ON SIGN-IN
+	# WOULD LIKE ONE API CALL MAX WITH ALL PODCASTS PULLED
+	# EVEN BETTER, DOES SIMPLECAST HAVE A NETWORK LEVEL PULL?
+	pod_ids = []
+	pod_data = []
+	for pod in podIDs():
+		pod_ids.append(pod['value'])
+	pod_ids_str = str(pod_ids).replace(' ', '')
+	for i in pod_ids:
+		pod_data.append(json.loads(getSimplecastResponse(f'/analytics?podcast={pod_ids_str}')))
+	network_data = pd.concat(pod_data)
+	# network_data = getSimplecastResponse(f'/analytics?podcast={pod_ids}')
+	return network_data
+
+
+
+
 if __name__=='__main__':
 	test_id = '93cc0b3a-49ea-455f-affd-ac01fdafd761'
 	usa_id = str(6252001)
 	interval='month'
 	episode_id = 'e51b5998-749f-4ca7-9f39-b17cda147746'
 
-	g = getSimplecastResponse(f'/analytics/downloads?episode={episode_id}&interval={interval}')
-	print(g)
+	# g = getSimplecastResponse(f'/analytics/downloads?episode={episode_id}&interval={interval}')
+	# print(g)
 	# # print(podIDs())
 	# e = episodeIDs(test_id)
 	# print(e)
+	nd = networkLevel()
+	print(nd)
+
