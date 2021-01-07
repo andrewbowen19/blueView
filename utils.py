@@ -68,20 +68,24 @@ def networkLevel():
 	# WRITE THIS SO IT DOESNT TAKE FOREVER TO RUN ON SIGN-IN
 	# WOULD LIKE ONE API CALL MAX WITH ALL PODCASTS PULLED
 	# EVEN BETTER, DOES SIMPLECAST HAVE A NETWORK LEVEL PULL?
-	pod_ids = []
+	# dat = getSimplecastResponse('/analytics/?limit=1000')
+	# print(json.loads(dat)['collection'])
+
 	pod_data = []
-	for pod in podIDs():
-		pod_ids.append(pod['value'])
-	pod_ids_str = str(pod_ids).replace(' ', '')
-	for i in pod_ids:
-		pod_data.append(json.loads(getSimplecastResponse(f'/analytics?podcast={pod_ids_str}')))
-	network_data = pd.concat(pod_data)
+	pod_ids = [x['value'] for x in podIDs()] # we need to get better at using llist comprehensions
+	pod_ids_str = str(pod_ids)[1:-1]
+	print(pod_ids_str)
+
+	# for i in pod_ids:
+	# 	print(f'Getting pod data for: {i}')
+	# 	pod_data.append(json.loads(getSimplecastResponse(f'/analytics?podcast={i}')))
+	print(pod_data)
+	network_data = pd.DataFrame(pod_data)
 	# network_data = getSimplecastResponse(f'/analytics?podcast={pod_ids}')
 	return network_data
 
 
-
-
+# Can test included functions if needed
 if __name__=='__main__':
 	test_id = '93cc0b3a-49ea-455f-affd-ac01fdafd761'
 	usa_id = str(6252001)
@@ -93,6 +97,19 @@ if __name__=='__main__':
 	# # print(podIDs())
 	# e = episodeIDs(test_id)
 	# print(e)
+
+	# p = podIDs()
+	# print(p)
+
+	# Network level data call test
 	nd = networkLevel()
-	print(nd)
+	print(nd.columns)
+
+	nd.to_csv('../pods.csv')
+
+
+
+
+
+
 
