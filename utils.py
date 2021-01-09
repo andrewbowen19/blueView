@@ -57,6 +57,28 @@ def episodeIDs(pod_id):
 
 	return episode_id_titles
 
+def formatNetworkQueryString():
+	'''
+	Function to format network query string based on # of podcasts in network
+	Should scale as # of pods increases
+	Should return list of strings so we can loop through it in the network data call
+	'''
+
+	pod_ids = ['&podcast='+x['value'] for x in podIDs()] # we need to get better at using llist comprehensions
+	l = []
+	for i in range(0, len(pod_ids), 100):
+		l.append(pod_ids[i:i + 100])
+	print(len(l[0]))
+	pl = []
+	for ll in l:
+		pod_ids_str = str(ll)[1:-1].replace(' ','')
+		pod_ids_str = pod_ids_str.replace("'", '')
+		pod_ids_str = pod_ids_str.replace(",", '')[1::]#removes first unecessary '&' symbol from str
+		# print(pod_ids_str)
+		pl.append(pod_ids_str)
+	# print(pl)
+	return pl
+
 # Need a func to get network level data from Simplecast -- called on entry
 def networkLevel():
 	'''
@@ -70,21 +92,26 @@ def networkLevel():
 	# EVEN BETTER, DOES SIMPLECAST HAVE A NETWORK LEVEL PULL?
 	# dat = getSimplecastResponse('/analytics/?limit=1000')
 	# print(json.loads(dat)['collection'])
+	# Formatting API Call query string
+	big_tits = []
+	query_str_list = formatNetworkQueryString()
+	for s in query_str_list:
+		# ... (Call api with each string and append returned val)
 
-	pod_data = []
-	pod_ids = [x['value'] for x in podIDs()] # we need to get better at using llist comprehensions
-	pod_ids_str = str(pod_ids)[1:-1]
-	print(pod_ids_str)
+		print('QUERY STRING:')
+		print(f'/analytics/downloads?{s}')
 
-	# for i in pod_ids:
-	# 	print(f'Getting pod data for: {i}')
-	# 	pod_data.append(json.loads(getSimplecastResponse(f'/analytics?podcast={i}')))
-	print(pod_data)
-	network_data = pd.DataFrame(pod_data)
+		pod_data = json.loads(getSimplecastResponse(f'/analytics/downloads?{s}'))
+	# pod_data.append(json.loads(getSimplecastResponse(f'/analytics?podcast={pod_ids_str}')))
+		print('##########################')
+		print('##########################')
+		print(pod_data)
+	# network_data = pd.DataFrame(pod_data)
 	# network_data = getSimplecastResponse(f'/analytics?podcast={pod_ids}')
-	return network_data
-
-
+	# return network_data
+		big_tits.append(pod_data)
+	print('FINAL API RESPONSE:')
+	print(big_tits)
 # Can test included functions if needed
 if __name__=='__main__':
 	test_id = '93cc0b3a-49ea-455f-affd-ac01fdafd761'
@@ -100,12 +127,12 @@ if __name__=='__main__':
 
 	# p = podIDs()
 	# print(p)
-
+	# formatNetworkQueryString()
 	# Network level data call test
 	nd = networkLevel()
-	print(nd.columns)
+	# print(nd.columns)
 
-	nd.to_csv('../pods.csv')
+	# nd.to_csv('../pods.csv')
 
 
 

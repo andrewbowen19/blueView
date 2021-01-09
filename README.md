@@ -19,12 +19,12 @@ Run `python download_map.py` from the command line in order to view download dat
 
 ## **TODO:**
 
-- [] Add dropdown, app layout functions to utils
-- [] Figure out simplecast individual state API call for geo bubble chart
-- [] Research hosting platforms compatible with plotly (AWS might be feasible here)
+- [X] Add dropdown, app layout functions to utils
+- [X] Figure out simplecast individual state API call for geo bubble chart
+- [X] Research hosting platforms compatible with plotly (AWS might be feasible here)
 - [] Look into JSON parsing error ('countries', 'collection', etc.) when converting to pandas df
 - [] Dream up some new visualizations!
-
+- [] Add network-level dtaa to db for faster pulls on login than API call
 
 
 
