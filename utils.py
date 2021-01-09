@@ -93,15 +93,17 @@ def networkLevel():
 	# dat = getSimplecastResponse('/analytics/?limit=1000')
 	# print(json.loads(dat)['collection'])
 	# Formatting API Call query string
-	big_tits = []
+	downloads_by_pod = []
 	query_str_list = formatNetworkQueryString()
-	for s in query_str_list:
+	pod_ids = ['&podcast='+x['value'] for x in podIDs()]
+	# for s in query_str_list:
+	for p in pod_ids:
 		# ... (Call api with each string and append returned val)
 
 		print('QUERY STRING:')
-		print(f'/analytics/downloads?{s}')
+		print(f'/analytics/downloads?{p}')
 
-		pod_data = json.loads(getSimplecastResponse(f'/analytics/downloads?{s}'))
+		pod_data = json.loads(getSimplecastResponse(f'/analytics/downloads?{p}'))['total']
 	# pod_data.append(json.loads(getSimplecastResponse(f'/analytics?podcast={pod_ids_str}')))
 		print('##########################')
 		print('##########################')
@@ -109,9 +111,9 @@ def networkLevel():
 	# network_data = pd.DataFrame(pod_data)
 	# network_data = getSimplecastResponse(f'/analytics?podcast={pod_ids}')
 	# return network_data
-		big_tits.append(pod_data)
+		downloads_by_pod.append(pod_data)
 	print('FINAL API RESPONSE:')
-	print(big_tits)
+	print(downloads_by_pod)
 # Can test included functions if needed
 if __name__=='__main__':
 	test_id = '93cc0b3a-49ea-455f-affd-ac01fdafd761'
