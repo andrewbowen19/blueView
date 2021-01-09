@@ -73,8 +73,8 @@ def network_data():
 
 	# Writing to a csv for both network stats and 
 
-	network_downloads_grouped.to_csv('network-downloads.csv')
-	network_stats.to_csv('network-stats.csv')
+	network_downloads_grouped.to_csv('network-downloads.csv', index=False)
+	network_stats.to_csv('network-stats.csv', index=False)
 
 
 

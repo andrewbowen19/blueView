@@ -12,21 +12,28 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.express as px
-
+import os
 import pandas as pd
 import json
 
 # ########LOCAL IMPORTS####
-# from getSimpleCast import getSimpleCast
 from utils import getSimplecastResponse, podIDs, episodeIDs
-
-# from podIDs import podIDs
-# ########################
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server # needed for heroku deploy
+
+# Network data from db
+network_stats = pd.read_csv(os.path.join('.', 'db', 'network-stats.csv'))
+network_downloads = pd.read_csv(os.path.join('.', 'db', 'network-downloads.csv'))
+
+num_pods = network_stats['Number of Podcasts'].values[0]
+n_episodes = network_stats['Total Episodes'].values[0]
+n_downloads = network_stats['Total Downloads'].values[0]
+
+# Setting up network downloads graph
+f = px.line(network_downloads, x='interval', y='downloads_total', title='Network Data')
 
 
 # assume you have a "long-form" data frame -- reformatted from API JSON responses
@@ -35,8 +42,42 @@ server = app.server # needed for heroku deploy
 pod_id_list = podIDs()
 # Setting up app layout
 app.layout = html.Div(children=[
-    html.H1(children='Podcast Downloads by Date'),
 
+    html.Div([
+        html.H1(children='Blue Wire Network Data', style={'color':'#0000ff', 'text-align':'center'}),
+    ]),
+    # Network Stats
+    html.Div(children=[
+
+        # Number of podcasts
+        html.H2(id='number-podcasts', 
+            children=f'{num_pods} Podcasts',
+            className='four columns'),
+        # Number of downloads -- BW network
+        html.H2(id='network-total-downloads', 
+            children=f'Total Downloads: {n_downloads}',
+            className='four columns'),
+        # Number of episodes -- BW network
+        html.H2(id='network-number-epidoses', 
+            children=f'Total Episodes: {n_episodes}',
+            className='four columns'),
+
+        # dcc.Graph(id='network-download-graph',
+        # figure=f)
+    ]),
+    html.Div([
+        html.H3(children='Network Chart', style={'color':'#ffffff','text-align':'left'}),
+    ]),
+    # Network level downloads graph
+    html.Div([
+        dcc.Graph(id='network-download-graph',
+        figure=f,
+        ),   
+        ]),
+
+
+    ##############PODCAST LEVEL VIEW##################
+    html.H1(children='Podcast Downloads by Date'),
     # Dropdown menu for user interaction
     dcc.Dropdown(
         id='pod-title-dropdown',
@@ -99,7 +140,7 @@ app.layout = html.Div(children=[
     ]),
 
     html.Div([
-    ### Episode Level ###
+    ########### EPISODE LEVEL VIEW ##############
         html.H2('Episode-Level Data'),
 
     # Episode Dropdown
