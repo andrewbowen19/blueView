@@ -1,20 +1,14 @@
 # BlueView
-This repo is a sandbox for us to build a dash visualization app based on Simplecast response data
 
-Eventually want this to replace our Power BI dashboard as a visualization tool
+[BlueView](https://blu-view.herokuapp.com) is a podcast data visualization web app hosted by [Heroku](https://dashboard.heroku.com/apps).
 
+This applet will eventually replace our Power BI analytics dashboard
+
+This app is created using Plotly and Dash.
 [Plotly Dash docs](https://dash.plotly.com)
 
-Info on plotly callbacks (used in our downloads_total app) can be found [here](https://dash.plotly.com/basic-callbacks).
-
-## Podcast Downloads
-To use the podcasts-downloads dashboard, run `python app.py` from the command line and visit the HTTP port from the local server
-
-## Distribution Platform Analytics
-To get a histogram of podcast downloads by distribution  platform (Apple, Spotify, etc.) run `python platform_hist.py` from the command line and navigate to listed local server (http://127.0.0.1:8050/)
-
-## Country Download Data
-Run `python download_map.py` from the command line in order to view download data for each country per podcast
+## Dev Notes
+For development, the application can be viewed by running `python app.py` form the command line and visiting the local host port provided.
 
 
 ## **TODO:**
