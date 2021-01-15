@@ -88,7 +88,15 @@ app.layout = html.Div(children=[
         id='podcast-table',
         columns=[{'name': i, 'id': i} for i in pod_table.columns],
         data=pod_table.to_dict('records'),
+        filter_action="native",
+        sort_action="native",
+        # Styling DataTable
         style_cell={'textAlign': 'left'},
+        style_data_conditional=[{
+            'if': {'row_index': 'odd'},
+            'backgroundColor': 'rgb(248, 248, 248)'
+        }],
+        style_header={'font-weight':'bold'},
         page_size=20,
         page_current=0)
     ]),
