@@ -160,8 +160,12 @@ def network_pod_table():
 		avg_downloads = json.loads(getSimplecastResponse(f'/analytics/episodes/average_downloads?podcast={p}'))['total']
 		pod_data['Average Downloads'] = avg_downloads
 
+		# Setting up pod ID to be included
+		pod_data['Podcast ID'] = p
+
 		print('Pod Data:', pod_data)
 		podcasts.append(pod_data)
+
 
 		print('######################')
 

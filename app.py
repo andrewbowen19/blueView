@@ -37,7 +37,19 @@ n_downloads = "{:,}".format(network_stats['Total Downloads'].values[0])
 
 # Setting up network downloads graph
 f = px.line(network_downloads, x='interval', y='downloads_total', title='Network Data')
-
+f.update_xaxes(
+    rangeslider_visible=True,
+    tickformatstops = [
+        dict(dtickrange=[None, 1000], value="%H:%M:%S.%L ms"),
+        dict(dtickrange=[1000, 60000], value="%H:%M:%S s"),
+        dict(dtickrange=[60000, 3600000], value="%H:%M m"),
+        dict(dtickrange=[3600000, 86400000], value="%H:%M h"),
+        dict(dtickrange=[86400000, 604800000], value="%e. %b d"),
+        dict(dtickrange=[604800000, "M1"], value="%e. %b w"),
+        dict(dtickrange=["M1", "M12"], value="%b '%y M"),
+        dict(dtickrange=["M12", None], value="%Y Y")
+    ]
+)
 
 # assume you have a "long-form" data frame -- reformatted from API JSON responses
 # see https://plotly.com/python/px-arguments/ for more options
@@ -77,18 +89,20 @@ app.layout = html.Div(children=[
     # Network level downloads graph
     html.Div([
         dcc.Graph(id='network-download-graph',
-        figure=f,)   
+        figure=f),#px.line(network_downloads, x='interval', y='downloads_total', title='Network Data')),
         ]),
 
     ###########Podcast Table code Here ###############
     # https://dash.plotly.com/datatable/callbacks
+    # https://dash.plotly.com/datatable/reference
     html.H3('Blue Wire Podcasts'),
     html.Div([
         dash_table.DataTable(
         id='podcast-table',
         columns=[{'name': i, 'id': i} for i in pod_table.columns],
         data=pod_table.to_dict('records'),
-        filter_action="native",
+        # filter_action="native",
+        hidden_columns=['Podcast ID'],
         sort_action="native",
         # Styling DataTable
         style_cell={'textAlign': 'left'},
@@ -201,6 +215,29 @@ app.layout = html.Div(children=[
 # For more info check: https://dash.plotly.com/basic-callbacks
 
 # #############################
+# Interval slider for network graph
+@app.callback(
+    Output(component_id='network-download-graph', component_property='children'),
+    Input(component_id='network-interval-slider', component_property='value')
+)
+def update_network_graph(interval):
+    '''
+    Function to update downloads figure based on inputted pod ID
+    Pod ID parameter set by user selection on our dropdown menu
+    '''
+    # Getting data from Simplecast for selected podcast
+    account_id = '3c7a8b2b-3c19-4d8d-8b92-b17852c3269c'
+    print('Interval selcted:', interval)
+    intervals = {0: 'day', 1:'week', 2:'month'}
+    dat = getSimplecastResponse(f'/analytics/downloads?account={account_id}&interval={intervals[interval]}')
+    df = pd.json_normalize(json.loads(dat), 'by_interval')
+    print(df)
+
+    # Creating plotly
+    f = px.line(df, x="interval", y="downloads_total")
+    return f
+
+# #############################
 # Updating selected pod from dropdown menu
 @app.callback(
     Output(component_id='dd-output-container', component_property='children'),
@@ -218,7 +255,6 @@ def update_output_div(input_value):
 def update_pod_stats(pod_title):
     # update pod name, # downloads, # episodes
     return f'Podcast Title: {pod_title} '#, " <# Downloads> ", ' <# Episodes> ']
-
 
 
 # #############################
