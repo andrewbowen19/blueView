@@ -11,6 +11,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
+import dash_table
 import plotly.express as px
 import os
 import pandas as pd
@@ -22,15 +23,17 @@ from utils import getSimplecastResponse, podIDs, episodeIDs
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-server = app.server # needed for heroku deploy
+server = app.server # server needed for heroku deploy
 
 # Network data from db
 network_stats = pd.read_csv(os.path.join('.', 'db', 'network-stats.csv'))
 network_downloads = pd.read_csv(os.path.join('.', 'db', 'network-downloads.csv'))
+pod_table = pd.read_csv(os.path.join('.', 'db', 'podcast-table.csv'))
+print('PODCAST TABLE:', pod_table)
 
-num_pods = network_stats['Number of Podcasts'].values[0]
-n_episodes = network_stats['Total Episodes'].values[0]
-n_downloads = network_stats['Total Downloads'].values[0]
+num_pods = "{:,}".format(network_stats['Number of Podcasts'].values[0])
+n_episodes = "{:,}".format(network_stats['Total Episodes'].values[0])
+n_downloads = "{:,}".format(network_stats['Total Downloads'].values[0])
 
 # Setting up network downloads graph
 f = px.line(network_downloads, x='interval', y='downloads_total', title='Network Data')
@@ -52,15 +55,18 @@ app.layout = html.Div(children=[
         # Number of podcasts
         html.H2(id='number-podcasts', 
             children=f'{num_pods} Podcasts',
-            className='four columns'),
+            className='four columns',
+            style={'text-align':'center'}),
         # Number of downloads -- BW network
         html.H2(id='network-total-downloads', 
-            children=f'Total Downloads: {n_downloads}',
-            className='four columns'),
+            children=f'{n_downloads} Downloads',
+            className='four columns',
+            style={'text-align':'center'}),
         # Number of episodes -- BW network
         html.H2(id='network-number-epidoses', 
-            children=f'Total Episodes: {n_episodes}',
-            className='four columns'),
+            children=f'{n_episodes} Episodes',
+            className='four columns',
+            style={'text-align':'center'}),
 
         # dcc.Graph(id='network-download-graph',
         # figure=f)
@@ -71,11 +77,23 @@ app.layout = html.Div(children=[
     # Network level downloads graph
     html.Div([
         dcc.Graph(id='network-download-graph',
-        figure=f,
-        ),   
+        figure=f,)   
         ]),
 
+    ###########Podcast Table code Here ###############
+    # https://dash.plotly.com/datatable/callbacks
+    html.H3('Blue Wire Podcasts'),
+    html.Div([
+        dash_table.DataTable(
+        id='podcast-table',
+        columns=[{'name': i, 'id': i} for i in pod_table.columns],
+        data=pod_table.to_dict('records'),
+        style_cell={'textAlign': 'left'},
+        page_size=20,
+        page_current=0)
+    ]),
 
+    
     ##############PODCAST LEVEL VIEW##################
     html.H1(children='Podcast Downloads by Date'),
     # Dropdown menu for user interaction

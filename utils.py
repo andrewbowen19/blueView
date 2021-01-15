@@ -116,25 +116,16 @@ def networkLevel():
 	print(downloads_by_pod)
 # Can test included functions if needed
 if __name__=='__main__':
+	# Test podcast ID
 	test_id = '93cc0b3a-49ea-455f-affd-ac01fdafd761'
 	usa_id = str(6252001)
 	interval='month'
 	episode_id = 'e51b5998-749f-4ca7-9f39-b17cda147746'
 
-	# g = getSimplecastResponse(f'/analytics/downloads?episode={episode_id}&interval={interval}')
-	# print(g)
-	# # print(podIDs())
-	# e = episodeIDs(test_id)
-	# print(e)
+	# Simplecast Account ID
+	account_id = '3c7a8b2b-3c19-4d8d-8b92-b17852c3269c'
 
-	# p = podIDs()
-	# print(p)
-	# formatNetworkQueryString()
-	# Network level data call test
-	nd = networkLevel()
-	# print(nd.columns)
-
-	# nd.to_csv('../pods.csv')
+	
 
 
 
