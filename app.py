@@ -37,6 +37,7 @@ n_downloads = "{:,}".format(network_stats['Total Downloads'].values[0])
 
 # Setting up network downloads graph
 f = px.line(network_downloads, x='interval', y='downloads_total', title='Network Data')
+# Adding slider to s
 f.update_xaxes(
     rangeslider_visible=True,
     tickformatstops = [
@@ -103,6 +104,8 @@ app.layout = html.Div(children=[
         data=pod_table.to_dict('records'),
         # filter_action="native",
         hidden_columns=['Podcast ID'],
+        row_selectable='single',
+        selected_rows=[],
         sort_action="native",
         # Styling DataTable
         style_cell={'textAlign': 'left'},
@@ -111,8 +114,14 @@ app.layout = html.Div(children=[
             'backgroundColor': 'rgb(248, 248, 248)'
         }],
         style_header={'font-weight':'bold'},
-        page_size=20,
-        page_current=0)
+        style_table={
+            'height': 500,
+            'overflowY': 'auto'
+            # 'width': 400
+        }
+        )
+        # page_size=20)
+        # page_current=0)
     ]),
 
     
@@ -157,10 +166,8 @@ app.layout = html.Div(children=[
             id='interval-slider', 
             min=0, max=2, 
             marks={0: 'day', 1:'week', 2:'month'},
-            value=1)#,
-            #tooltip={'placement':'right'},
-            #vertical=True)
-        ])
+            value=1)
+            ])
     ]),
     
     # Div for bottom 2 graphs -- side by side
