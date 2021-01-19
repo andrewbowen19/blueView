@@ -36,21 +36,21 @@ n_episodes = "{:,}".format(network_stats['Total Episodes'].values[0])
 n_downloads = "{:,}".format(network_stats['Total Downloads'].values[0])
 
 # Setting up network downloads graph
-f = px.line(network_downloads, x='interval', y='downloads_total', title='Network Data')
-# Adding slider to s
-f.update_xaxes(
-    rangeslider_visible=True,
-    tickformatstops = [
-        dict(dtickrange=[None, 1000], value="%H:%M:%S.%L ms"),
-        dict(dtickrange=[1000, 60000], value="%H:%M:%S s"),
-        dict(dtickrange=[60000, 3600000], value="%H:%M m"),
-        dict(dtickrange=[3600000, 86400000], value="%H:%M h"),
-        dict(dtickrange=[86400000, 604800000], value="%e. %b d"),
-        dict(dtickrange=[604800000, "M1"], value="%e. %b w"),
-        dict(dtickrange=["M1", "M12"], value="%b '%y M"),
-        dict(dtickrange=["M12", None], value="%Y Y")
-    ]
-)
+# f = px.line(network_downloads, x='interval', y='downloads_total', title='Network Data')
+# # Adding slider to s
+# f.update_xaxes(
+#     rangeslider_visible=True,
+#     tickformatstops = [
+#         dict(dtickrange=[None, 1000], value="%H:%M:%S.%L ms"),
+#         dict(dtickrange=[1000, 60000], value="%H:%M:%S s"),
+#         dict(dtickrange=[60000, 3600000], value="%H:%M m"),
+#         dict(dtickrange=[3600000, 86400000], value="%H:%M h"),
+#         dict(dtickrange=[86400000, 604800000], value="%e. %b d"),
+#         dict(dtickrange=[604800000, "M1"], value="%e. %b w"),
+#         dict(dtickrange=["M1", "M12"], value="%b '%y M"),
+#         dict(dtickrange=["M12", None], value="%Y Y")
+#     ]
+# )
 
 # assume you have a "long-form" data frame -- reformatted from API JSON responses
 # see https://plotly.com/python/px-arguments/ for more options
@@ -90,7 +90,25 @@ app.layout = html.Div(children=[
     # Network level downloads graph
     html.Div([
         dcc.Graph(id='network-download-graph',
-        figure=f),#px.line(network_downloads, x='interval', y='downloads_total', title='Network Data')),
+        figure=px.line(network_downloads, x='interval', y='downloads_total', title='Network Data').update_xaxes(
+    rangeslider_visible=True,
+    tickformatstops = [
+        dict(dtickrange=[None, 1000], value="%H:%M:%S.%L ms"),
+        dict(dtickrange=[1000, 60000], value="%H:%M:%S s"),
+        dict(dtickrange=[60000, 3600000], value="%H:%M m"),
+        dict(dtickrange=[3600000, 86400000], value="%H:%M h"),
+        dict(dtickrange=[86400000, 604800000], value="%e. %b d"),
+        dict(dtickrange=[604800000, "M1"], value="%e. %b w"),
+        dict(dtickrange=["M1", "M12"], value="%b '%y M"),
+        dict(dtickrange=["M12", None], value="%Y Y")
+    ]
+)),#px.line(network_downloads, x='interval', y='downloads_total', title='Network Data')),
+        dcc.Slider(
+            id='network-interval-slider', 
+            min=0, max=2, 
+            marks={0: 'day', 1:'week', 2:'month'},
+            value=1)
+
         ]),
 
     ###########Podcast Table code Here ###############
@@ -101,39 +119,45 @@ app.layout = html.Div(children=[
         dash_table.DataTable(
         id='podcast-table',
         columns=[{'name': i, 'id': i} for i in pod_table.columns],
+        
         data=pod_table.to_dict('records'),
         # filter_action="native",
+        column_selectable='single',
         hidden_columns=['Podcast ID'],
-        row_selectable='single',
+
+        row_selectable='multi', # Allowing multiple podcast selections from table
+        selected_columns=[],
         selected_rows=[],
         sort_action="native",
-        # Styling DataTable
+        # Styling DataTable; but make it ~spicy~
+
         style_cell={'textAlign': 'left'},
         style_data_conditional=[{
-            'if': {'row_index': 'odd'},
-            'backgroundColor': 'rgb(248, 248, 248)'
-        }],
+                                'if': {'row_index': 'odd'},
+                                'backgroundColor': 'rgb(248, 248, 248)'
+                                }],
         style_header={'font-weight':'bold'},
         style_table={
-            'height': 500,
-            'overflowY': 'auto'
-            # 'width': 400
-        }
-        )
+                    'height': 500,
+                    'overflowY': 'auto'
+
+        })
+            
         # page_size=20)
         # page_current=0)
     ]),
 
     
     ##############PODCAST LEVEL VIEW##################
+    html.Div([
     html.H1(children='Podcast Downloads by Date'),
     # Dropdown menu for user interaction
     dcc.Dropdown(
         id='pod-title-dropdown',
         options=pod_id_list,
         searchable=True
-    ),
-
+    )
+    ]),
     # Outputs selected podcast ID to user: not sure if we need this later on
     html.Div(id='dd-output-container'),
 
@@ -168,50 +192,50 @@ app.layout = html.Div(children=[
             marks={0: 'day', 1:'week', 2:'month'},
             value=1)
             ])
-    ]),
+    ])
     
     # Div for bottom 2 graphs -- side by side
-    html.Div([
-    # Distribution Platform Graph
-    html.Div([
-            dcc.Graph(
-            id='dist-platform-graph')
-            ],  className='six columns'),
-    # Country Downlaods graph 
-    html.Div([
+    # html.Div([
+    # # Distribution Platform Graph
+    # html.Div([
+    #         dcc.Graph(
+    #         id='dist-platform-graph')
+    #         ],  className='six columns'),
+    # # Country Downlaods graph 
+    # html.Div([
 
-        dcc.Graph(
-        id='country-downloads-graph')
+    #     dcc.Graph(
+    #     id='country-downloads-graph')
 
-        ],  className='six columns')
-    ]),
+    #     ],  className='six columns')
+    # ]),
 
-    html.Div([
-    ########### EPISODE LEVEL VIEW ##############
-        html.H2('Episode-Level Data'),
+    # html.Div([
+    # ########### EPISODE LEVEL VIEW ##############
+    #     html.H2('Episode-Level Data'),
 
-    # Episode Dropdown
-        dcc.Dropdown(
-        id='episode-dropdown',
-        # options=episodeIDs(),
-        searchable=True
+    # # Episode Dropdown
+    #     dcc.Dropdown(
+    #     id='episode-dropdown',
+    #     # options=episodeIDs(),
+    #     searchable=True
         
-    ),
+    # ),
 
 
-    ], id='episode-level'),
+    # ], id='episode-level'),
 
     # Episode Downlaod graph - same format as podcast donwload graph
-    html.Div([
-        dcc.Graph(id='episode-download-graph'),
+    # html.Div([
+    #     dcc.Graph(id='episode-download-graph'),
 
-        dcc.Slider(
-            id='ep-interval-slider', 
-            min=0, max=2, 
-            marks={0: 'day', 1:'week', 2:'month'},
-            value=1)
+    #     dcc.Slider(
+    #         id='ep-interval-slider', 
+    #         min=0, max=2, 
+    #         marks={0: 'day', 1:'week', 2:'month'},
+    #         value=1)
 
-        ])
+    #     ])
 
     
 ])
@@ -224,7 +248,7 @@ app.layout = html.Div(children=[
 # #############################
 # Interval slider for network graph
 @app.callback(
-    Output(component_id='network-download-graph', component_property='children'),
+    Output(component_id='network-download-graph', component_property='figure'),
     Input(component_id='network-interval-slider', component_property='value')
 )
 def update_network_graph(interval):
@@ -242,6 +266,20 @@ def update_network_graph(interval):
 
     # Creating plotly
     f = px.line(df, x="interval", y="downloads_total")
+    f.update_xaxes(
+    rangeslider_visible=True,
+    tickformatstops = [
+        dict(dtickrange=[None, 1000], value="%H:%M:%S.%L ms"),
+        dict(dtickrange=[1000, 60000], value="%H:%M:%S s"),
+        dict(dtickrange=[60000, 3600000], value="%H:%M m"),
+        dict(dtickrange=[3600000, 86400000], value="%H:%M h"),
+        dict(dtickrange=[86400000, 604800000], value="%e. %b d"),
+        dict(dtickrange=[604800000, "M1"], value="%e. %b w"),
+        dict(dtickrange=["M1", "M12"], value="%b '%y M"),
+        dict(dtickrange=["M12", None], value="%Y Y")
+    ]
+)
+
     return f
 
 # #############################
