@@ -5,6 +5,7 @@ import http.client
 import pandas as pd
 from pandas import json_normalize
 import json
+import numpy as np
 
 
 def getSimplecastResponse(query_params):
@@ -68,7 +69,7 @@ def formatNetworkQueryString():
 	l = []
 	for i in range(0, len(pod_ids), 100):
 		l.append(pod_ids[i:i + 100])
-	print(len(l[0]))
+	# print(len(l[0]))
 	pl = []
 	for ll in l:
 		pod_ids_str = str(ll)[1:-1].replace(' ','')
@@ -114,6 +115,42 @@ def networkLevel():
 		downloads_by_pod.append(pod_data)
 	print('FINAL API RESPONSE:')
 	print(downloads_by_pod)
+
+def get_episode_data(pod_id):
+	'''
+	Function to get episode data (donwloads, listeners)
+	And return it for  an individual podcast
+	
+	returns: pandas df object with individual episode data
+	df.columns = ['title', 'published_at', 'number', 'id', 'downloads', 'listeners']
+
+	'''
+	print('Pod ID selected by user:', pod_id)
+	pod_dat = json.loads(getSimplecastResponse(f'/analytics/episodes?podcast={pod_id}&limit=1000')) # Getting downloads
+	list_dat = json.loads(getSimplecastResponse(f'/analytics/episodes/listeners?podcast={pod_id}&limit=1000')) # getting listeners
+
+	# listeners and downloads dfs
+	downloads_df = pd.DataFrame(pod_dat['collection'])
+	listeners_df = pd.DataFrame(list_dat['collection'])
+
+	# print(downloads_df, listeners_df)
+	# Joining listeners and downloads 
+	df = pd.concat([downloads_df.reset_index(drop=True), listeners_df.reset_index(drop=True)], axis=1,copy=False)
+	df = df.loc[:,~df.columns.duplicated()] # Dropping duplicate cols
+
+	# print('Joined DF:', df, '\n', df.columns)
+	table_cols = ['title', 'published_at', 'id', 'downloads', 'listeners']
+	table = df[table_cols]
+	table['downloads'] = [x.get('total', 0) for x in table['downloads']]
+	table['listeners'] = [x.get('total', 0) for x in table['listeners']]
+
+	# Changing pub date format for readability
+	table['published_at'] = pd.to_datetime(table['published_at'], utc=True).dt.date 
+
+	# print('Episode data table: \n', table)
+	return table	
+
+
 # Can test included functions if needed
 if __name__=='__main__':
 	# Test podcast ID
@@ -124,6 +161,8 @@ if __name__=='__main__':
 
 	# Simplecast Account ID
 	account_id = '3c7a8b2b-3c19-4d8d-8b92-b17852c3269c'
+	# get_episode_data(test_id)
+	print(podIDs())
 
 	
 
