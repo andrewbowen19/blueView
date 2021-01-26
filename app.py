@@ -18,7 +18,7 @@ import pandas as pd
 import json
 
 # ########LOCAL IMPORTS####
-from utils import getSimplecastResponse, podIDs, episodeIDs, get_episode_data
+from utils import getSimplecastResponse, podIDs, episodeIDs, get_episode_data, group_listener_data
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -308,46 +308,50 @@ def update_network_graph(interval, selected_columns):
     # Getting time-series listener data
     elif 'Total Listeners' in selected_columns:
         print('Using listener data for network graph...')
-        df = listeners_network
+
+        # df = listeners_network
         y_data_label = 'total'
-        # Converting to selected interval
+        df = group_listener_data(listeners_network, interval)
+        # # Converting to selected interval
 
-        # Day interval
-        if interval==0:
-            df = df
-            print(type(df['interval'][0]))
+        # # Day interval
+        # if interval==0:
+        #     df = df
+        #     print(type(df['interval'][0]))
 
-        # Week grouping (default)
-        elif interval == 1:
-            print(df)
-            # df = df.set_index(['interval'])
-            df['interval'] = pd.to_datetime(df['interval'], format='%Y-%M-%d')
-            # print(df['interval'])
-            df = df.set_index('interval').resample('W', closed='left').sum()
-            df['interval'] = df.index
-            print('Grouped Weekly df:\n', df, df.index)
+        # # Week grouping (default)
+        # elif interval == 1:
+            
 
-        # Month
-        elif interval ==2:
-            print('INPUT DF MONTH LISTENERS:', df)
+        #     df['interval'] = pd.to_datetime(df['interval'], format='%Y-%M-%d')
+        #     # df = df.set_index('interval')
+        #     # print(df, df[['interval','total']].dtypes)
+        #     df = df.resample('W', on='interval').sum()
+            
+        #     print('Grouped Weekly df:\n', df, df.index)
 
-            df['interval'] = pd.to_datetime(df['interval'], format='%Y-%M-%d')#.dt.date
-            # https://stackoverflow.com/questions/53700107/pandas-time-series-resample-binning-seems-off
-            df = df.set_index('interval').resample('BM',closed='left').sum()
+        # # Month
+        # elif interval ==2:
+        #     print('INPUT DF MONTH LISTENERS:', df)
 
-            print('Df 2 resample:\n', df, df.index)
-            # df.resample('M').sum()
-            # df['interval'] = df.index
-            df['interval'] = df.index
-            print('Grouped Monthly df:\n', df)
+        #     df['interval'] = pd.to_datetime(df['interval'], format='%Y-%M-%d')#.dt.date
+        #     # https://stackoverflow.com/questions/53700107/pandas-time-series-resample-binning-seems-off
+        #     df = df.set_index('interval').resample('BM',closed='left').sum()
 
-        print('Listeners DF (grouped):\n', df)
+        #     print('Df 2 resample:\n', df, df.index)
+        #     # df.resample('M').sum()
+        #     # df['interval'] = df.index
+        #     df['interval'] = df.index
+        #     print('Grouped Monthly df:\n', df)
+
+        # print('Listeners DF (grouped):\n', df)
 
     
     # print(df)
 
-    # Creating plotly
+    # Creating plotly - maybe add multi columns to graph if desired
     f = px.line(df, x="interval", y=y_data_label)
+    # f = px.line(df, x="interval", y=y_data_label)
     f.update_xaxes(
     rangeslider_visible=True,
     tickformatstops = [
@@ -359,8 +363,7 @@ def update_network_graph(interval, selected_columns):
         dict(dtickrange=[604800000, "M1"], value="%e. %b w"),
         dict(dtickrange=["M1", "M12"], value="%b '%y M"),
         dict(dtickrange=["M12", None], value="%Y Y")
-    ]
-)
+        ])
 
     return f
 
