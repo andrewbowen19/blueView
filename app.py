@@ -29,7 +29,6 @@ server = app.server # server needed for heroku deploy
 network_stats = pd.read_csv(os.path.join('.', 'db', 'network-stats.csv'))
 network_downloads = pd.read_csv(os.path.join('.', 'db', 'network-downloads.csv'))
 pod_table = pd.read_csv(os.path.join('.', 'db', 'podcast-table.csv'))
-listeners_network = pd.read_csv(os.path.join('.', 'db', 'network-listeners-by-date.csv'))
 print('PODCAST TABLE:', pod_table)
 
 num_pods = "{:,}".format(network_stats['Number of Podcasts'].values[0])
@@ -308,7 +307,7 @@ def update_network_graph(interval, selected_columns):
     # Getting time-series listener data
     elif 'Total Listeners' in selected_columns:
         print('Using listener data for network graph...')
-
+        listeners_network = pd.read_csv(os.path.join('.', 'db', 'network-listeners-by-date.csv'))
         # df = listeners_network
         y_data_label = 'total'
         df = group_listener_data(listeners_network, interval)
