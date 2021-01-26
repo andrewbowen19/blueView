@@ -15,14 +15,14 @@ from utils import getSimplecastResponse, podIDs
 # Blue Wire Account ID
 account_id = '3c7a8b2b-3c19-4d8d-8b92-b17852c3269c'
 test_id = '93cc0b3a-49ea-455f-affd-ac01fdafd761'
-
+pod_ids = [x['value'] for x in podIDs()]
 def network_data():
 	'''
 	Function to get network-level data (# pods, Total # downloads, Total # Episodes)
 	Should be scheduled run (i.e. runs once per day/hour)
 	Want this to update a db/file for our app to pull from
 	'''
-	pod_ids = [x['value'] for x in podIDs()]
+	# pod_ids = [x['value'] for x in podIDs()]
 	# Getting download and episode totals for each pod in network
 	episodes = []
 	downloads = []
@@ -124,9 +124,22 @@ def get_listeners():
 	'''
 	Getting unique listener data for each pod
 	'''
+	listener_dfs = []
+	for p in pod_ids:
 
-	listener_dat = json.loads(getSimplecastResponse(f'/analytics/downloads?account={account_id}'))
-	print(listener_dat)
+
+		listener_dat = json.loads(getSimplecastResponse(f'/analytics/listeners?podcast={p}'))
+		print(listener_dat['by_interval'])
+		listener_dfs.append(pd.DataFrame(listener_dat['by_interval']))
+
+
+	listeners = pd.concat(listener_dfs)
+	
+	listener_path = os.path.join('.', 'db', 'network-listeners-by-date.csv')
+	listeners = listeners.groupby('interval', as_index=False)['total'].sum()
+	print('Listeners by date:\n', listeners)
+	listeners.to_csv(listener_path, index=False)
+	return listeners
 
 
 def network_pod_table():
@@ -138,7 +151,7 @@ def network_pod_table():
 	'''
 	pod_ids = [x['value'] for x in podIDs()]
 
-	print('Getting Netwrok Table Data')
+	print('Getting Network Table Data')
 	podcasts = []
 	for p in pod_ids:
 		 # Dictionary to hold 4 values: Title, # Downloads, # Listeners, Avg Downloads
@@ -179,10 +192,9 @@ def network_pod_table():
 # Look into scheduling this script
 # May want to add it to utils script
 if __name__ == '__main__':
-	# network_data()
-	# network_pull()
-	# get_network_downloads()
-	# get_listeners()
+	network_data()
+	get_network_downloads()
+	get_listeners()
 	network_pod_table()
 
 

@@ -29,6 +29,7 @@ server = app.server # server needed for heroku deploy
 network_stats = pd.read_csv(os.path.join('.', 'db', 'network-stats.csv'))
 network_downloads = pd.read_csv(os.path.join('.', 'db', 'network-downloads.csv'))
 pod_table = pd.read_csv(os.path.join('.', 'db', 'podcast-table.csv'))
+listeners_network = pd.read_csv(os.path.join('.', 'db', 'network-listeners-by-date.csv'))
 print('PODCAST TABLE:', pod_table)
 
 num_pods = "{:,}".format(network_stats['Number of Podcasts'].values[0])
@@ -103,7 +104,7 @@ app.layout = html.Div(children=[
     html.Div([
         dash_table.DataTable(
         id='podcast-table',
-        columns=[{'name': i, 'id': i} for i in pod_table.columns],
+        columns=[{'name': i, 'id': i, "selectable": True} for i in pod_table.columns],
         
         data=pod_table.to_dict('records'),
         # filter_action="native",
@@ -111,9 +112,10 @@ app.layout = html.Div(children=[
         hidden_columns=['Podcast ID'],
 
         row_selectable='multi', # Allowing multiple podcast selections from table
-        selected_columns=[],
+        selected_columns=['Total Downloads'],
         selected_rows=[],
         sort_action="native",
+        sort_mode="multi",
         # Styling DataTable; but make it ~spicy~
 
         style_cell={'textAlign': 'left', 'max-width': '50px'},
@@ -264,26 +266,88 @@ app.layout = html.Div(children=[
 # For more info check: https://dash.plotly.com/basic-callbacks
 
 # #############################
+# Highlighting col of podcast table when single col selected
+@app.callback(
+    Output('podcast-table', 'style_data_conditional'),
+    Input('podcast-table', 'selected_columns')
+    )
+def update_styles(selected_columns):
+    return [{
+        'if': { 'column_id': i },
+        'background_color': '#D2F3FF'
+    } for i in selected_columns]
+
+# #############################
 # Interval slider for network graph
 @app.callback(
     Output(component_id='network-download-graph', component_property='figure'),
-    Input(component_id='network-interval-slider', component_property='value')
+    Input(component_id='network-interval-slider', component_property='value'),
+    Input(component_id='podcast-table', component_property='selected_columns')
 )
-def update_network_graph(interval):
+def update_network_graph(interval, selected_columns):
     '''
     Function to update downloads figure based on inputted pod ID
     Pod ID parameter set by user selection on our dropdown menu
     '''
     # Getting data from Simplecast for selected podcast
+
     account_id = '3c7a8b2b-3c19-4d8d-8b92-b17852c3269c'
+    print('New Column Type Selected!')
     print('Interval selcted:', interval)
+    print('Col selected:', selected_columns)
     intervals = {0: 'day', 1:'week', 2:'month'}
-    dat = getSimplecastResponse(f'/analytics/downloads?account={account_id}&interval={intervals[interval]}')
-    df = pd.json_normalize(json.loads(dat), 'by_interval')
+    # table_cols = {'Total Downloads': '/analytics/downloads', 'Total Listeners':  }
+    # Getting downloads
+    # y_data_label = 'downloads_total'
+    if 'Total Downloads' in selected_columns:
+        print('Using download data for network graph...')
+        dat = getSimplecastResponse(f'/analytics/downloads?account={account_id}&interval={intervals[interval]}')
+        df = pd.json_normalize(json.loads(dat), 'by_interval')
+        y_data_label = 'downloads_total'
+
+    # Getting time-series listener data
+    elif 'Total Listeners' in selected_columns:
+        print('Using listener data for network graph...')
+        df = listeners_network
+        y_data_label = 'total'
+        # Converting to selected interval
+
+        # Day interval
+        if interval==0:
+            df = df
+            print(type(df['interval'][0]))
+
+        # Week grouping (default)
+        elif interval == 1:
+            print(df)
+            # df = df.set_index(['interval'])
+            df['interval'] = pd.to_datetime(df['interval'], format='%Y-%M-%d')
+            # print(df['interval'])
+            df = df.set_index('interval').resample('W', closed='left').sum()
+            df['interval'] = df.index
+            print('Grouped Weekly df:\n', df, df.index)
+
+        # Month
+        elif interval ==2:
+            print('INPUT DF MONTH LISTENERS:', df)
+
+            df['interval'] = pd.to_datetime(df['interval'], format='%Y-%M-%d')#.dt.date
+            # https://stackoverflow.com/questions/53700107/pandas-time-series-resample-binning-seems-off
+            df = df.set_index('interval').resample('BM',closed='left').sum()
+
+            print('Df 2 resample:\n', df, df.index)
+            # df.resample('M').sum()
+            # df['interval'] = df.index
+            df['interval'] = df.index
+            print('Grouped Monthly df:\n', df)
+
+        print('Listeners DF (grouped):\n', df)
+
+    
     # print(df)
 
     # Creating plotly
-    f = px.line(df, x="interval", y="downloads_total")
+    f = px.line(df, x="interval", y=y_data_label)
     f.update_xaxes(
     rangeslider_visible=True,
     tickformatstops = [
@@ -303,7 +367,6 @@ def update_network_graph(interval):
 
 # ############################
 # Having episode level table appear
-
 @app.callback(
     [Output(component_id='episode-table', component_property='data'),
     Output(component_id='podcast-title', component_property='children')],
