@@ -16,7 +16,7 @@ def getSimplecastResponse(query_params):
     Check Simplecast docs for this
     '''
     # Figure out how to set this as an env variable
-    auth = 'Bearer eyJhcGlfa2V5IjoiMmY4MThhMDg3NzEyOTYxZTk3NzcwNTM3NDJjMmJiNmUifQ=='
+    auth = os.environ.get('SIMPLECAST_API_TOKEN')
     payload = ''
     url = "api.simplecast.com"
     headers = {'authorization': auth}
@@ -196,9 +196,7 @@ if __name__=='__main__':
     episode_id = 'e51b5998-749f-4ca7-9f39-b17cda147746'
 
     # Simplecast Account ID
-    account_id = '3c7a8b2b-3c19-4d8d-8b92-b17852c3269c'
-    # get_episode_data(test_id)
-    # print(podIDs())
+    account_id = os.environ.get('SIMPLECAST_ACCOUNT_ID') # Finally using environment vars :)
     listener_data = pd.read_csv(os.path.join('.', 'db', 'network-listeners-by-date.csv'))
     group_listener_data(listener_data, 2) # week for testing
 

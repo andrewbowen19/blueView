@@ -13,7 +13,7 @@ import datetime
 from utils import getSimplecastResponse, podIDs
 
 # Blue Wire Account ID
-account_id = '3c7a8b2b-3c19-4d8d-8b92-b17852c3269c'
+account_id = os.environ.get('SIMPLECAST_ACCOUNT_ID')
 test_id = '93cc0b3a-49ea-455f-affd-ac01fdafd761'
 pod_ids = [x['value'] for x in podIDs()]
 def network_data():

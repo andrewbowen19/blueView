@@ -46,26 +46,25 @@ app.layout = html.Div(children=[
 
     html.Div([
         html.H1(children='Blue Wire Network Data', style={'color':'#0000ff', 'text-align':'center'}),
-    ]),
+             ]),
     # Network Stats
     html.Div(children=[
-
-        # Number of podcasts
-        html.H2(id='number-podcasts', 
-            children=f'{num_pods} Podcasts',
-            className='four columns',
-            style={'text-align':'center'}),
-        # Number of downloads -- BW network
-        html.H2(id='network-total-downloads', 
-            children=f'{n_downloads} Downloads',
-            className='four columns',
-            style={'text-align':'center'}),
-        # Number of episodes -- BW network
-        html.H2(id='network-number-epidoses', 
-            children=f'{n_episodes} Episodes',
-            className='four columns',
-            style={'text-align':'center'}),
-    ]),
+                        # Number of podcasts
+                        html.H2(id='number-podcasts', 
+                            children=f'{num_pods} Podcasts',
+                            className='four columns',
+                            style={'text-align':'center'}),
+                        # Number of downloads -- BW network
+                        html.H2(id='network-total-downloads', 
+                            children=f'{n_downloads} Downloads',
+                            className='four columns',
+                            style={'text-align':'center'}),
+                        # Number of episodes -- BW network
+                        html.H2(id='network-number-epidoses', 
+                            children=f'{n_episodes} Episodes',
+                            className='four columns',
+                            style={'text-align':'center'}),
+                        ]),
     html.Div([
         html.H3(children='Network Chart', style={'color':'#ffffff','text-align':'left'}),
     ]),
@@ -84,7 +83,7 @@ app.layout = html.Div(children=[
         dict(dtickrange=["M1", "M12"], value="%b '%y M"),
         dict(dtickrange=["M12", None], value="%Y Y")
     ]
-)),#px.line(network_downloads, x='interval', y='downloads_total', title='Network Data')),
+)),
         dcc.Slider(
             id='network-interval-slider', 
             min=0, max=2, 
@@ -194,7 +193,7 @@ app.layout = html.Div(children=[
     )
 def update_styles(selected_columns):
     return [{
-        'if': { 'column_id': i },
+        'if': {'column_id': i},
         'background_color': '#D2F3FF'
     } for i in selected_columns]
 
@@ -216,7 +215,7 @@ def update_network_graph(interval, selected_columns):
     print('New Column Type Selected!')
     print(f'Interval & Col selcted: {interval}, {selected_columns}')
 
-    intervals = {0: 'day', 1:'week', 2:'month'}
+    intervals = {0: 'day', 1: 'week', 2: 'month'}
 
     # Getting downloads
     if 'Total Downloads' in selected_columns:
