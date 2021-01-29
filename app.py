@@ -194,67 +194,6 @@ app.layout = html.Div(children=[
 
         ]),
 
-    # Downloads per time period graph
-    # html.Div([
-    #     # Graph of downloads vs time
-    #     html.Div([
-    #     dcc.Graph(
-    #     id='downloads-graph'
-    #      ),
-    #     # ]),
-
-    #     # html.Div([
-    #     # Slider to toggle interval
-    #     dcc.Slider(
-    #         id='interval-slider', 
-    #         min=0, max=2, 
-    #         marks={0: 'day', 1:'week', 2:'month'},
-    #         value=1)
-    #         ])
-    # ])
-    
-    # Div for bottom 2 graphs -- side by side
-    # html.Div([
-    # # Distribution Platform Graph
-    # html.Div([
-    #         dcc.Graph(
-    #         id='dist-platform-graph')
-    #         ],  className='six columns'),
-    # # Country Downlaods graph 
-    # html.Div([
-
-    #     dcc.Graph(
-    #     id='country-downloads-graph')
-
-    #     ],  className='six columns')
-    # ]),
-
-    # html.Div([
-    # ########### EPISODE LEVEL VIEW ##############
-    #     html.H2('Episode-Level Data'),
-
-    # # Episode Dropdown
-    #     dcc.Dropdown(
-    #     id='episode-dropdown',
-    #     # options=episodeIDs(),
-    #     searchable=True
-        
-    # ),
-
-
-    # ], id='episode-level'),
-
-    # Episode Downlaod graph - same format as podcast donwload graph
-    # html.Div([
-    #     dcc.Graph(id='episode-download-graph'),
-
-    #     dcc.Slider(
-    #         id='ep-interval-slider', 
-    #         min=0, max=2, 
-    #         marks={0: 'day', 1:'week', 2:'month'},
-    #         value=1)
-
-    #     ])
 
     
 ])
