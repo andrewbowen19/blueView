@@ -16,7 +16,7 @@ def getSimplecastResponse(query_params):
     Check Simplecast docs for this
     '''
     # Figure out how to set this as an env variable
-    auth = os.environ.get('SIMPLECAST_API_TOKEN')
+    auth = os.environ['SIMPLECAST_API_TOKEN']
     payload = ''
     url = "api.simplecast.com"
     headers = {'authorization': auth}
@@ -70,7 +70,7 @@ def formatNetworkQueryString():
     l = []
     for i in range(0, len(pod_ids), 100):
         l.append(pod_ids[i:i + 100])
-    # print(len(l[0]))
+
     pl = []
     for ll in l:
         pod_ids_str = str(ll)[1:-1].replace(' ','')
