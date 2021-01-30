@@ -104,13 +104,11 @@ app.layout = html.Div(children=[
         dash_table.DataTable(
         id='podcast-table',
         columns=[{'name': i, 'id': i, "selectable": True} for i in pod_table.columns],
-        
         data=pod_table.to_dict('records'),
         # filter_action="native",
         column_selectable='single',
         hidden_columns=['Podcast ID'],
-
-        row_selectable='multi', # Allowing multiple podcast selections from table
+        row_selectable='single', # Allowing multiple podcast selections from table
         selected_columns=['Total Downloads'],
         selected_rows=[],
         sort_action="native",
@@ -121,13 +119,6 @@ app.layout = html.Div(children=[
         style_data_conditional=[{
                                 'if': {'row_index': 'odd'},
                                 'backgroundColor': 'rgb(248, 248, 248)'}
-                                # },
-                                # {'if': {'column_id': 'Total Downloads'},
-                                # 'width' : '60px'},
-                                # {'if': {'column_id': 'Total Listeners'},
-                                # 'width' : '60px'},
-                                # {'if': {'column_id': 'Average Downloads'},
-                                # 'width' : '60px'}
                                 ],
         style_header={'font-weight':'bold'},
         style_table={
@@ -145,13 +136,8 @@ app.layout = html.Div(children=[
     ##############PODCAST LEVEL VIEW##################
     html.Div([
     html.H1(id='podcast-title',children='Podcast'),
-    # Dropdown menu for user interaction
-    # dcc.Dropdown(
-    #     id='pod-title-dropdown',
-    #     options=pod_id_list,
-    #     searchable=True
-    # )
     ]),
+
     # Outputs selected podcast ID to user: not sure if we need this later on
     html.Div(id='dd-output-container'),
 
@@ -171,14 +157,19 @@ app.layout = html.Div(children=[
     # Podcast table -- appears with episodes of a podcast when selected
     html.Div(id='episode-table-div',
         children=[
+        html.Div(id='episode-table-half',
+        children=[
         dash_table.DataTable(
             id='episode-table',
             columns=[{'name': i, 'id': i} for i in episode_table_cols],
             column_selectable='single',
             data=[],
             hidden_columns=['id'],
-            
+            row_selectable='single',
+            selected_columns=[],
+            selected_rows=[],
             sort_action="native",
+            sort_mode='multi',
             style_cell={'textAlign': 'left'},
             style_data_conditional=[{
                                 'if': {'row_index': 'odd'},
@@ -187,15 +178,19 @@ app.layout = html.Div(children=[
             style_header={'font-weight':'bold'},
             style_table={
                     'height': 500,
-                    'overflowY': 'auto'
-                        }
-            )
+                    'overflowY': 'auto',
+                    # 'width': '50%',
+                    'marginLeft': 0, 'marginRight': 'auto'}
+            
+        )
+        ], className='six colummns'),
 
+        # Podcast table graph --scatter
+        html.Div(id='podcast-graph-div',children=[
+                dcc.Graph(id='podcast-graph', className='six colummns')  
+        ])
 
-        ]),
-
-
-    
+    ], className='row')
 ])
 
 # #################################################################################################
@@ -250,46 +245,11 @@ def update_network_graph(interval, selected_columns):
         # df = listeners_network
         y_data_label = 'total'
         df = group_listener_data(listeners_network, interval)
-        # # Converting to selected interval
 
-        # # Day interval
-        # if interval==0:
-        #     df = df
-        #     print(type(df['interval'][0]))
-
-        # # Week grouping (default)
-        # elif interval == 1:
-            
-
-        #     df['interval'] = pd.to_datetime(df['interval'], format='%Y-%M-%d')
-        #     # df = df.set_index('interval')
-        #     # print(df, df[['interval','total']].dtypes)
-        #     df = df.resample('W', on='interval').sum()
-            
-        #     print('Grouped Weekly df:\n', df, df.index)
-
-        # # Month
-        # elif interval ==2:
-        #     print('INPUT DF MONTH LISTENERS:', df)
-
-        #     df['interval'] = pd.to_datetime(df['interval'], format='%Y-%M-%d')#.dt.date
-        #     # https://stackoverflow.com/questions/53700107/pandas-time-series-resample-binning-seems-off
-        #     df = df.set_index('interval').resample('BM',closed='left').sum()
-
-        #     print('Df 2 resample:\n', df, df.index)
-        #     # df.resample('M').sum()
-        #     # df['interval'] = df.index
-        #     df['interval'] = df.index
-        #     print('Grouped Monthly df:\n', df)
-
-        # print('Listeners DF (grouped):\n', df)
-
-    
-    # print(df)
 
     # Creating plotly - maybe add multi columns to graph if desired
     f = px.line(df, x="interval", y=y_data_label)
-    # f = px.line(df, x="interval", y=y_data_label)
+
     f.update_xaxes(
     rangeslider_visible=True,
     tickformatstops = [
@@ -310,27 +270,39 @@ def update_network_graph(interval, selected_columns):
 # Having episode level table appear
 @app.callback(
     [Output(component_id='episode-table', component_property='data'),
-    Output(component_id='podcast-title', component_property='children')],
-    # Input(component_id='podcast-table', component_property='rows'), 
+    Output(component_id='podcast-title', component_property='children'),
+    Output(component_id='podcast-graph', component_property='figure')],
     Input(component_id='podcast-table', component_property='selected_rows')
+
     )
 def update_episode_table(selected_rows):
-    # print('PODCAST INDEX SELECTED BY USER:',selected_rows)
+
     # Indexing Df - making copy of data
     selected_row = pod_table.loc[selected_rows]
-    print('Selected Row:', selected_row)
+    print('Selected Row & col:', selected_row)#, selected_columns)
     pod_id = selected_row['Podcast ID'].values[0]
+    pod_title = selected_row['Podcast Title']
 
     df = get_episode_data(pod_id)
-    print(df.to_dict('records'))
+    print('Episode data for pod selected:', df)
 
-    return df.to_dict('records'), selected_row['Podcast Title'] 
-
-
+    f = px.scatter(df, x='published_at', y='downloads', hover_data=['title'])
 
 
+    return df.to_dict('records'), pod_title , f
+
+# ############################
+# Updating pod graph for each episode - scatter plot
+# @app.callback(
+#     Output(component_id='podcast-graph', component_property='figure'),
+#     Input(component_id='episode-table', component_property='selected_columns')
+
+# )
+# def update_episode_graph(selected_columns):
+#     print(f'Selected Cols: {selected_columns}')
 
 
+# Run the app
 if __name__ == '__main__':
     app.run_server(
         debug=True
@@ -338,136 +310,6 @@ if __name__ == '__main__':
 
 
 
-# #############################
-# Updating selected pod from dropdown menu
-# @app.callback(
-#     Output(component_id='dd-output-container', component_property='children'),
-#     Input(component_id='pod-title-dropdown', component_property='value')
-# )
-# def update_output_div(input_value):
-#     return f'Your selected podcast ID: {input_value}'
-
-# #############################
-# Getting pod stats
-# @app.callback(
-#     Output(component_id='pod-title-block', component_property='children'),
-#     Input(component_id='pod-title-dropdown', component_property='value')
-# )
-# def update_pod_stats(pod_title):
-#     # update pod name, # downloads, # episodes
-#     return f'Podcast Title: {pod_title} '#, " <# Downloads> ", ' <# Episodes> ']
-
-
-# #############################
-# Calback to update graph from dropdown menu
-# @app.callback(
-#     Output(component_id='downloads-graph', component_property='figure'),
-#     Input(component_id='pod-title-dropdown', component_property='value'),
-#     Input(component_id='interval-slider', component_property='value')
-# )
-# def update_graph(pod_id, interval):
-#     '''
-#     Function to update downloads figure based on inputted pod ID
-#     Pod ID parameter set by user selection on our dropdown menu
-#     '''
-#     # Getting data from Simplecast for selected podcast
-#     print('Interval selcted:', interval)
-#     intervals = {0: 'day', 1:'week', 2:'month'}
-#     dat = getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}&interval={intervals[interval]}')
-#     df = pd.json_normalize(json.loads(dat), 'by_interval')
-#     print(df)
-
-#     # Creating plotly
-#     fig = px.line(df, x="interval", y="downloads_total")
-#     return fig
-
-# #############################
-# Distribution platform graph
-# @app.callback(
-#     Output(component_id='dist-platform-graph', component_property='figure'),
-#     Input(component_id='pod-title-dropdown', component_property='value')
-# )
-# def update_platform_graph(pod_id):
-#     '''update distribution platform graph based on podcast selection'''
-#     dat = getSimplecastResponse(f'/analytics/technology/applications?podcast={pod_id}')
-#     dat2json = json.loads(dat)
-#     df = pd.DataFrame(dat2json['collection'])
-#     print(df)
-#     print(df.columns)
-#     fig = px.histogram(df, 
-#                   x='name', y='downloads_total',
-#                   labels={'name': 'Platform Name', 'downloads_total': 'Downloads'},
-#                   range_x=[0,10],nbins=10,
-#                   title='Downloads per Distribution platform')
-#     return fig
-
-# # ############################
-# # Country Download Map
-# @app.callback(
-#     Output(component_id='country-downloads-graph', component_property='figure'),
-#     Input(component_id='pod-title-dropdown', component_property='value')
-# )
-# def update_map(pod_id):
-#     '''update map plot'''
-#     dat = getSimplecastResponse(f'/analytics/location?podcast={pod_id}')
-#     df = pd.DataFrame(json.loads(dat)['countries'])
-#     fig = px.scatter_geo(df, locations="name", locationmode= 'country names',
-#                      hover_name="name", size="downloads_total",
-#                      projection="natural earth", title='Downloads Per Country')
-#     return fig
-
-
-# ############################
-# Episode Level Dropdown
-# @app.callback(
-#     Output(component_id='episode-dropdown', component_property='options'),
-#     Input(component_id='pod-title-dropdown', component_property='value')
-# )
-# def update_episode_dropdown(pod_id):
-#     print('Podcast: Selected', pod_id)
-#     episode_options = episodeIDs(pod_id)
-#     print('Episode list (with tokens):', episode_options)
-#     return episode_options
-
-# ############################
-# Episode Level Downloads graph
-# Calback to update graph from dropdown menu
-# @app.callback(
-#     Output(component_id='episode-download-graph', component_property='figure'),
-#     Input(component_id='pod-title-dropdown', component_property='value'),
-#     Input(component_id='episode-dropdown', component_property='value'),
-#     Input(component_id='ep-interval-slider', component_property='value')
-# )
-# def update_episode_graph(pod_id, episode_id, interval):
-#     '''
-#     Function to update downloads figure based on inputted pod ID and ep ID
-#     Pod ID parameter set by user selection on our dropdown menu
-#     '''
-#     # Getting data from Simplecast for selected podcast/episode
-#     intervals = {0: 'day', 1:'week', 2:'month'}
-#     print('Episode Interval selcted:', intervals[interval])
-#     print('Selected Episode ID:', episode_id)
-#     print('Getting Episode Data from Simplecast...')
-
-#     dat = getSimplecastResponse(f'/analytics/downloads?episode={episode_id}&interval={intervals[interval]}')
-#     print(dat)
-#     df = pd.json_normalize(json.loads(dat), 'by_interval')
-#     print('Got Data!')
-#     print('Episode Data pulled:', df)
-
-#     # Creating plotly figure within our Dash app
-#     fig = px.line(df, x="interval", y="downloads_total")
-#     return fig
-
-
-
-# Updating podcast tile when selection is made
-# @app.callback(
-#     Output(component_is='podcast-title', component_property='children'),
-#     Input(component_id='podcast-table', component_property='selected_rows')
-#     )
-# def update_pod_title():
-#     '''Updating podcast title when selected by user'''
 
 
 
