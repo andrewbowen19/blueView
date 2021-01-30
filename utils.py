@@ -185,6 +185,19 @@ def group_listener_data(listener_data, interval):
 
     return df
 
+def get_podcast_downloads_by_interval(pod_id):
+    '''
+    Get the downlaods by interval for a given pod
+    Returnd a dataframe with downlaods by interval
+    '''
+
+    dat = json.loads(getSimplecastResponse(f'/analytics/downloads?podcast={pod_id}'))
+    interval_data = dat['by_interval']
+
+    df = pd.DataFrame(interval_data)
+
+    # print(df)
+    return df
 
 
 # Can test included functions if needed
@@ -200,7 +213,8 @@ if __name__=='__main__':
     # get_episode_data(test_id)
     # print(podIDs())
     listener_data = pd.read_csv(os.path.join('.', 'db', 'network-listeners-by-date.csv'))
-    group_listener_data(listener_data, 2) # week for testing
+    # group_listener_data(listener_data, 2) # week for testing
+    # get_podcast_downloads_by_interval(test_id)
 
 
     

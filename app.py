@@ -18,7 +18,7 @@ import pandas as pd
 import json
 
 # ########LOCAL IMPORTS####
-from utils import getSimplecastResponse, podIDs, episodeIDs, get_episode_data, group_listener_data
+from utils import *#getSimplecastResponse, podIDs, episodeIDs, get_episode_data, group_listener_data, 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -154,10 +154,11 @@ app.layout = html.Div(children=[
             className='three columns')
         ]),
 
-    # Podcast table -- appears with episodes of a podcast when selected
-    html.Div(id='episode-table-div',
+    # Podcast table & graph -- appears with episodes of a podcast when selected
+    html.Div(id='episode-table-div', className='row',
         children=[
-        html.Div(id='episode-table-half',
+
+        html.Div(id='episode-table-half', className='six colummns',
         children=[
         dash_table.DataTable(
             id='episode-table',
@@ -178,19 +179,20 @@ app.layout = html.Div(children=[
             style_header={'font-weight':'bold'},
             style_table={
                     'height': 500,
-                    'overflowY': 'auto',
-                    # 'width': '50%',
-                    'marginLeft': 0, 'marginRight': 'auto'}
+                    'overflowY': 'auto'}#,#
+                    # 'width': '50%'}#,
+                    # 'marginLeft': 0, 'marginRight': 'auto'}
             
         )
-        ], className='six colummns'),
+        ]),
 
         # Podcast table graph --scatter
-        html.Div(id='podcast-graph-div',children=[
-                dcc.Graph(id='podcast-graph', className='six colummns')  
+        html.Div(id='podcast-graph-div', className='six colummns',
+                children=[
+                dcc.Graph(id='podcast-graph', figure={'layout':{'width':'50%'}})  
         ])
 
-    ], className='row')
+    ])
 ])
 
 # #################################################################################################
@@ -276,30 +278,38 @@ def update_network_graph(interval, selected_columns):
 
     )
 def update_episode_table(selected_rows):
-
+    # Updating the episode table & podcast graph below the main podcast table upon selection
     # Indexing Df - making copy of data
     selected_row = pod_table.loc[selected_rows]
     print('Selected Row & col:', selected_row)#, selected_columns)
     pod_id = selected_row['Podcast ID'].values[0]
-    pod_title = selected_row['Podcast Title']
+    pod_title = selected_row['Podcast Title'].values[0]
+    print(pod_title)
 
     df = get_episode_data(pod_id)
     print('Episode data for pod selected:', df)
 
-    f = px.scatter(df, x='published_at', y='downloads', hover_data=['title'])
+    # Getting interval download data for selected pod
+    dat = get_podcast_downloads_by_interval(pod_id)
+
+    # Creating downlaods graph for podcast selected
+    f = px.line(dat, x='interval', y='downloads_total', title=pod_title)
 
 
     return df.to_dict('records'), pod_title , f
 
-# ############################
-# Updating pod graph for each episode - scatter plot
-# @app.callback(
-#     Output(component_id='podcast-graph', component_property='figure'),
-#     Input(component_id='episode-table', component_property='selected_columns')
 
+# ############################
+# Episode selection graph tie-in
+# @app.callback(
+#     Output('podcast-graph', 'figure'),
+#     Input('episode-table', 'selected_rows')
 # )
-# def update_episode_graph(selected_columns):
-#     print(f'Selected Cols: {selected_columns}')
+# def update_episode_graph(selected_rows):
+#     print(f'Episode selected row:{selected_row}')
+
+
+# ############################
 
 
 # Run the app
