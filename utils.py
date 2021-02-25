@@ -9,6 +9,7 @@ import numpy as np
 import os
 
 
+
 def getSimplecastResponse(query_params):
     '''
     Method to establish connection to Simplecast API
@@ -36,7 +37,6 @@ def podIDs():
 
     # Writing API title-id responses to list
     for item in json.loads(dat)['collection']:
-        # print(item)
         pod_name_info.append({'label': item['title'], 'value': item['id']})
 
     # print('Podcast Titles & IDs: ', pod_name_info)

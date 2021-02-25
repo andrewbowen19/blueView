@@ -52,8 +52,6 @@ def network_data():
 		# unique_listeners = listener_dat['total']
 		# print('LISTENERS:',listener_dat.keys())
 
-
-
 		print('#########################')
 		# Writing data to list, then a file
 		downloads.append(pod_downloads)
@@ -75,7 +73,7 @@ def network_data():
 	print(f'Total Episodes: {episodes_total}', '\n')
 
 
-	# Getting network downlaods table -- want to sum downlaods based on common interval vals
+	# Getting network downloads table -- want to sum downlaods based on common interval vals
 	network_downloads = pd.concat(downloads_by_interval)
 	network_downloads_grouped = network_downloads.groupby('interval', as_index=False)['downloads_total'].sum()
 	print('NETWORK DOWNLOADS BY DAY:')
@@ -153,6 +151,8 @@ def network_pod_table():
 
 	print('Getting Network Table Data')
 	podcasts = []
+	# pod_dt = []
+	n=1
 	for p in pod_ids:
 		 # Dictionary to hold 4 values: Title, # Downloads, # Listeners, Avg Downloads
 		pod_data = {}
@@ -179,9 +179,9 @@ def network_pod_table():
 		print('Pod Data:', pod_data)
 		podcasts.append(pod_data)
 
-
+		# pod_dt.append(tuple(n, title, downloads, listeners, avg_downloads))
 		print('######################')
-
+		n += 1
 
 	df = pd.DataFrame(podcasts)
 	print('Final Dataframe:\n', df)
