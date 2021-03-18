@@ -9,7 +9,6 @@ import numpy as np
 import os
 
 
-
 def getSimplecastResponse(query_params):
     '''
     Method to establish connection to Simplecast API
@@ -210,11 +209,9 @@ if __name__=='__main__':
 
     # Simplecast Account ID
     account_id = '3c7a8b2b-3c19-4d8d-8b92-b17852c3269c'
-    # get_episode_data(test_id)
-    # print(podIDs())
+
     listener_data = pd.read_csv(os.path.join('.', 'db', 'network-listeners-by-date.csv'))
-    # group_listener_data(listener_data, 2) # week for testing
-    # get_podcast_downloads_by_interval(test_id)
+
 
 
     

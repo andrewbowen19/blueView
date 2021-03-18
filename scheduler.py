@@ -10,11 +10,16 @@ from utils import getSimplecastResponse, podIDs
 import json
 import datetime
 import numpy as np
+import pandas as pd
+from sqlalchemy import create_engine
+from boto.s3.connection import S3Connection
+
+# s3 = S3Connection(os.environ['DATABASE_URL'], os.environ['SIMPLECAST_ACCOUNT_ID'])
 
 
 # Connection url -- env variable in production
-dns = 'postgres://tssziceensuyju:df46ddbe5911723f5b7c920bcda753f4cc9fa50215ae9b4b92129fe354a3e0da@ec2-3-232-92-90.compute-1.amazonaws.com:5432/d6ij7g4596l6t4'
-account_id = '3c7a8b2b-3c19-4d8d-8b92-b17852c3269c'
+dns = 'postgres://tssziceensuyju:df46ddbe5911723f5b7c920bcda753f4cc9fa50215ae9b4b92129fe354a3e0da@ec2-3-232-92-90.compute-1.amazonaws.com:5432/d6ij7g4596l6t4'#os.environ['DATABASE_URL']
+account_id = '3c7a8b2b-3c19-4d8d-8b92-b17852c3269c' # os.environ['SIMPLECAST_ACCOUNT_ID']
 test_id = '93cc0b3a-49ea-455f-affd-ac01fdafd761'
 
 ### Tables we need ###
@@ -239,15 +244,39 @@ def create_podcast_tables():
 
         print('Table created, onto the next!\n')
 
+# ##############################################################################
+
+def write_network_table(update=True):
+    '''
+    Writes network-level downloads table
+    https://stackoverflow.com/questions/23103962/how-to-write-dataframe-to-postgres-table
+    '''
+    engine = create_engine(dns)
 
 
+    # Normal update table with last day's data
+    if update:
+        start_date = (datetime.datetime.now()).date()
+        dat = json.loads(getSimplecastResponse(f'/analytics/downloads?account={account_id}&start_date={start_date}'))
+        df = pd.DataFrame(dat['by_interval'])
+        print(df)
+        df.to_sql('network_level', con=engine, if_exists='append')
 
+    # Write all-time data to db
+    elif not update:
+        dat = json.loads(getSimplecastResponse(f'/analytics/downloads?account={account_id}'))
+        df = pd.DataFrame(dat['by_interval'])
+        df.to_sql('network_level', engine)
+    print('Database Network table updated!')
+
+def write_pod_tables():
+    '''
+    Writes podcast tables to our db
+    '''
 
 if __name__ == '__main__':
 
     # create_table()
-
-
     # format_response(f'/analytics/downloads?podcast={test_id}&limit=1000', 'by_interval')
-    create_podcast_tables()
-
+    # create_podcast_tables()
+    write_network_table()

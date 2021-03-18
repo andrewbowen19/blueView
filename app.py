@@ -18,14 +18,14 @@ import pandas as pd
 import json
 
 # ########LOCAL IMPORTS####
-from utils import *#getSimplecastResponse, podIDs, episodeIDs, get_episode_data, group_listener_data, 
+from utils import * 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server # server needed for heroku deploy
 
-# Network data from db
+# Network data from db -- Replace with Azure db conn
 network_stats = pd.read_csv(os.path.join('.', 'db', 'network-stats.csv'))
 network_downloads = pd.read_csv(os.path.join('.', 'db', 'network-downloads.csv'))
 pod_table = pd.read_csv(os.path.join('.', 'db', 'podcast-table.csv'))
@@ -132,7 +132,6 @@ app.layout = html.Div(children=[
             
     ]),
 
-    
     ##############PODCAST LEVEL VIEW##################
     html.Div([
     html.H1(id='podcast-title',children='Podcast'),
@@ -231,7 +230,7 @@ def update_network_graph(interval, selected_columns):
     print('Interval selcted:', interval)
     print('Col selected:', selected_columns)
     intervals = {0: 'day', 1:'week', 2:'month'}
-    # table_cols = {'Total Downloads': '/analytics/downloads', 'Total Listeners':  }
+
     # Getting downloads
     # y_data_label = 'downloads_total'
     if 'Total Downloads' in selected_columns:
