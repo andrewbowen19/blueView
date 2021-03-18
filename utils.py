@@ -69,13 +69,12 @@ def formatNetworkQueryString():
     l = []
     for i in range(0, len(pod_ids), 100):
         l.append(pod_ids[i:i + 100])
-    # print(len(l[0]))
+
     pl = []
     for ll in l:
         pod_ids_str = str(ll)[1:-1].replace(' ','')
         pod_ids_str = pod_ids_str.replace("'", '')
         pod_ids_str = pod_ids_str.replace(",", '')[1::]#removes first unecessary '&' symbol from str
-        # print(pod_ids_str)
         pl.append(pod_ids_str)
     # print(pl)
     return pl
@@ -91,8 +90,7 @@ def networkLevel():
     # WRITE THIS SO IT DOESNT TAKE FOREVER TO RUN ON SIGN-IN
     # WOULD LIKE ONE API CALL MAX WITH ALL PODCASTS PULLED
     # EVEN BETTER, DOES SIMPLECAST HAVE A NETWORK LEVEL PULL?
-    # dat = getSimplecastResponse('/analytics/?limit=1000')
-    # print(json.loads(dat)['collection'])
+
     # Formatting API Call query string
     downloads_by_pod = []
     query_str_list = formatNetworkQueryString()
@@ -157,7 +155,7 @@ def group_listener_data(listener_data, interval):
     '''
     print('Using listener data for network graph...')
     # Sub in listener_data with global read in in real app
-    df = listener_data# = pd.read_csv(os.path.join('.', 'db', 'network-listeners-by-date.csv'))
+    df = listener_data
     y_data_label = 'total'
     # Converting to selected interval
     print('')

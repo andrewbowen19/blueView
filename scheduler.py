@@ -18,7 +18,7 @@ from boto.s3.connection import S3Connection
 
 
 # Connection url -- env variable in production
-dns = 'postgres://tssziceensuyju:df46ddbe5911723f5b7c920bcda753f4cc9fa50215ae9b4b92129fe354a3e0da@ec2-3-232-92-90.compute-1.amazonaws.com:5432/d6ij7g4596l6t4'#os.environ['DATABASE_URL']
+dns = os.environ['DATABASE_URL']
 account_id = '3c7a8b2b-3c19-4d8d-8b92-b17852c3269c' # os.environ['SIMPLECAST_ACCOUNT_ID']
 test_id = '93cc0b3a-49ea-455f-affd-ac01fdafd761'
 

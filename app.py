@@ -297,7 +297,6 @@ def update_episode_table(selected_rows):
 
     return df.to_dict('records'), pod_title , f
 
-
 # ############################
 # Episode selection graph tie-in
 # @app.callback(
